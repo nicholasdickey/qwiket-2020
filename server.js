@@ -69,26 +69,33 @@ var optionsApi = {
 app.prepare()
     .then(() => {
         const server = express();
-        server.use(bodyParser.urlencoded({ extended: true }));
-        server.use(bodyParser.json());
+
         server.set("trust proxy", "loopback");
         server.use(favicon(__dirname + "/public/img/blue-bell.png"));
 
         server.use(compression());
+        server.use(bodyParser.urlencoded({ extended: false }));
+        server.use(bodyParser.json());
         var apiProxy = proxy(optionsApi);
         server.use("/robots.txt", apiProxy);
+        server.use("/get-session", apiProxy);
+
         server.use("/jsapi/?*", apiProxy);
         server.use("/api/?*", apiProxy);
         server.use("/qapi/?*", apiProxy);
         server.use("/ipn/?*", apiProxy);
         server.use("/ipndev/?*", apiProxy);
         server.use("/sitemap.txt", apiProxy);
+        server.use("/disqus-login/?*", apiProxy);
         // server.use("/sitemaps/:name/?*", apiProxy);
         server.use("/dl/:filename?*", apiProxy);
-        server.use("/cdn", apiProxy);
-        server.use("/static/cdn", apiProxy);
+        server.use("/cdn/*", apiProxy);
+        /*  server.use("/cdn/cat", apiProxy);
+        server.use("/cdn/x", apiProxy);
+        server.use("/static/cdn", apiProxy);*/
 
         server.use("/upload", apiProxy);
+
         qwiketRouter(server, app);
 
         let ar = ["/static*", "/_next*", "/_webpack*", "/__webpack_hmr*"];
@@ -99,10 +106,31 @@ app.prepare()
                 handle(req, res);
             });
         });
+        server.post("/graphql", async (req, res) => {
+            let body = req.body;
+            console.log("graphql:", body);
+            let u = `${url}/graphql`;
+            // let u = `http://dev.qwiket.com:8088/api?task=updateUserLayout&pxid=${pxid}&host=${host}&ip=${ip}&XDEBUG_SESSION_START=vscode`;
+            console.log("GRAPH URL:", u);
+            // console.log(chalk.red.bold("CHANNELL:"), channel, host)
+            let response = await fetch(u, {
+                // credentials: 'same-origin',
+                method: "POST",
+                credentials: "include",
+                headers: {
+                    Accept: "application/json",
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(body),
+            });
+            sres = await response.text();
+            //  console.log({ sres });
+            res.end(sres);
+        });
         server.get("/", (req, res) => {
             let { code, appid } = req.query;
 
-            const actualPage = "/channel";
+            const actualPage = "/index";
             const queryParams = {
                 route: "default",
                 channel: "landing",

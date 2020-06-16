@@ -51,7 +51,10 @@ let Landing = ({ ...props }) => {
                     <Typography variant="h1">Qwiket 20/20</Typography>
                 </StyledHorizontalWrapper>
                 <StyledHorizontalWrapper>
-                    <mg src="/static/css/qwiket-top-logo.png" />
+                    <img
+                        style={{ width: 200 }}
+                        src="/img/qwiket-top-logo.png"
+                    />
                 </StyledHorizontalWrapper>
             </StyledVerticalWrapper>
 

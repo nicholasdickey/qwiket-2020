@@ -1,0 +1,245 @@
+import React from "react";
+
+import styled from "styled-components";
+import Checkbox from "@material-ui/core/Checkbox";
+import FormControlLabel from "@material-ui/core/FormControlLabel";
+import Tooltip from "@material-ui/core/Tooltip";
+
+import AlertWidget from "./widgets/alert";
+import { refresh } from "../qwiket-lib/lib/qwiketRouter";
+
+const StyledCheckbox = styled(({ ...other }) => (
+    <Checkbox
+        classes={{ checked: "checked", disabled: "disabled" }}
+        {...other}
+    />
+))`
+  color: #eee !important;
+  width:200px%;
+  & .label {
+    #color: ${props => props.color};
+    color: #ddd;
+    font-size: 14px; 
+    font-family: Asap Condensed;
+    font-weight:bold;
+  }
+   & .checked {
+    color: #eee !important;
+   
+  }
+  & .disabled {
+    color:  #aff; !important;
+  }
+`;
+const StyledFormControlLabel = styled(({ ...other }) => (
+    <FormControlLabel classes={{ root: "label" }} {...other} />
+))`
+    color: #ddd;
+    font-size: 14px;
+    font-family: Asap Condensed;
+    font-weight: bold;
+`;
+
+let Topline = ({ layout, qparams, qstate }) => {
+    let { actions, session } = qstate;
+    let upd = actions.updateSessionOption;
+    console.log("RENDER TOPLINE");
+    let hpads = layout.hpads;
+    let { loud, thick, dense, dark, band } = session ? session.options : {};
+
+    const alert = (
+        <div style={{ flexShrink: 4 }}>
+            {" "}
+            <Tooltip title="Alerts">
+                <AlertWidget
+                    onClick={v => {
+                        console.log("alert click ", v);
+                        /* if (v.threadid) {
+           // console.log("Alert clicked thread=", v.threadid);
+           const url = contextUrl + v.threadid;
+           props.history.push(url);
+         }*/
+                    }}
+                    qparams={qparams}
+                    qstate={qstate}
+                />
+            </Tooltip>
+        </div>
+    );
+    const Check = ({ label, checked, onChange, disabled }) => {
+        return (
+            <StyledFormControlLabel
+                control={
+                    <StyledCheckbox
+                        checked={checked}
+                        color="primary"
+                        onChange={onChange}
+                        disabled={disabled}
+                    />
+                }
+                label={label}
+            />
+        );
+    };
+
+    const Loud = () => {
+        return (
+            <Check
+                label="Loud"
+                checked={loud == 1 ? true : false}
+                onChange={(e, v) => {
+                    console.log("Changed Loud");
+                    upd({ loud: v ? 1 : 0 });
+                    refresh({ qparams });
+                }}
+            />
+        );
+    };
+    const Thick = () => {
+        const StyledCheck = styled.div`
+            display: flex;
+            width: 120px;
+
+            @media (max-width: 1200px) {
+                display: none;
+            }
+        `;
+        return (
+            <StyledCheck>
+                <Check
+                    label="Thick"
+                    checked={thick == 1 ? true : false}
+                    onChange={(e, v) => {
+                        console.log("Changed And The Band");
+                        upd({ thick: v ? 1 : 0 });
+                        refresh({ qparams });
+                    }}
+                />
+            </StyledCheck>
+        );
+    };
+    const Dense = () => {
+        const StyledCheck = styled.div`
+            display: flex;
+            width: 120px;
+            @media (max-width: 1200px) {
+                display: none;
+            }
+        `;
+        return (
+            <StyledCheck>
+                <Check
+                    label="Dense"
+                    checked={dense == 1 ? true : false}
+                    onChange={(e, v) => {
+                        console.log("Changed And The Band");
+                        upd({ dense: v ? 1 : 0 });
+                        refresh({ qparams });
+                    }}
+                />
+            </StyledCheck>
+        );
+    };
+    const Dark = () => {
+        return (
+            <Check
+                label="Dark"
+                checked={dark == 1 ? true : false}
+                onChange={(e, v) => {
+                    console.log("Changed Dark");
+                    upd({ dark: v ? 1 : 0 });
+                    refresh({ qparams });
+                    //setTimeout(() => location.reload(true), 200)
+                }}
+            />
+        );
+    };
+    const Band = () => {
+        const StyledCheck = styled.div`
+            display: flex;
+            @media (max-width: 750px) {
+                display: none;
+            }
+        `;
+        return (
+            <StyledCheck>
+                <Check
+                    label="And The Band"
+                    checked={band == 1 ? true : false}
+                    onChange={(e, v) => {
+                        console.log("Changed And The Band");
+                        upd({ band: v ? 1 : 0 });
+                        refresh({ qparams });
+                    }}
+                />
+            </StyledCheck>
+        );
+    };
+
+    const ToplineBand = styled.div`
+        width: 100%;
+        height: 30%;
+        display: block;
+        background-color: #000;
+        @media (max-width: 749px) {
+            display: none;
+        }
+    `;
+    const InnerBand = styled.div`
+        padding-left: ${hpads.w0};
+        padding-right: ${hpads.w0};
+        width: "100%" @media (min-width: 750px) {
+            padding-left: ${hpads.w750};
+            padding-right: ${hpads.w750};
+        }
+        @media (min-width: 900px) {
+            padding-left: ${hpads.w900};
+            padding-right: ${hpads.w900};
+        }
+        @media (min-width: 1200px) {
+            padding-left: ${hpads.w1200};
+            padding-right: ${hpads.w1200};
+        }
+        @media (min-width: 1600px) {
+            padding-left: ${hpads.w1600};
+            padding-right: ${hpads.w1600};
+        }
+        @media (min-width: 1800px) {
+            padding-left: ${hpads.w1800};
+            padding-right: ${hpads.w1800};
+        }
+        @media (min-width: 1950px) {
+            padding-left: ${hpads.w1950};
+            padding-right: ${hpads.w1950};
+        }
+        @media (min-width: 2100px) {
+            padding-left: ${hpads.w2100};
+            padding-right: ${hpads.w2100};
+        }
+        @media (min-width: 2400px) {
+            padding-left: ${hpads.w2400};
+            padding-right: ${hpads.w2400};
+        }
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        color: #eee;
+        font-size: 10px;
+        font-weight: normal;
+        height: 30px;
+        margin-bottom: 0px;
+    `;
+    return (
+        <ToplineBand data-id="topline">
+            <InnerBand>
+                <Loud />
+                <Thick />
+                <Dense />
+                <Dark />
+                <Band />
+                {alert}
+            </InnerBand>
+        </ToplineBand>
+    );
+};
+export default Topline;

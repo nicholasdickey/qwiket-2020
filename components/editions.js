@@ -22,6 +22,7 @@ const FETCH_ALL_CHANNELS_QL = gql`
             slug
             displayName
             description
+            logo
         }
     }
 `;
@@ -44,8 +45,8 @@ let NewEditionSwitch = props => {
     channels.forEach((o, i) => {
         console.log("Adding o=", o);
 
-        var { displayName: name, description, slug: homeChannel } = o;
-
+        var { displayName: name, description, slug: homeChannel, logo } = o;
+        console.log({ name, description, homeChannel, logo });
         let target = "/channel/" + homeChannel;
         /*else
           target='/';*/
@@ -67,7 +68,7 @@ let NewEditionSwitch = props => {
                 //  style={props.textStyle ? props.textStyle : null}
             >
                 <ListItemAvatar>
-                    <Avatar src={o.get("logo")} />
+                    <Avatar src={logo} />
                 </ListItemAvatar>
                 <ListItemText primary={name} secondary={description} />
             </ListItem>
