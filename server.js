@@ -2,8 +2,18 @@
 require = require("esm")(module /*, options*/);
 require("dotenv").config();
 const express = require("express");
+var crypto = require("crypto");
+
+var generate_key = function () {
+    // 16 bytes is likely to be more than enough,
+    // but you may tweak it to your needs
+    return crypto.randomBytes(16).toString("base64");
+};
+//const { session } = require("next-session");
+//const session = require("express-session");
+var cookieSession = require("cookie-session");
 const next = require("next");
-var proxy = require("http-proxy-middleware");
+const { createProxyMiddleware } = require("http-proxy-middleware");
 const compression = require("compression");
 var favicon = require("serve-favicon");
 const bodyParser = require("body-parser");
@@ -11,6 +21,7 @@ const dev = process.env.NODE_ENV !== "production";
 const app = next({ dev });
 const handle = app.getRequestHandler();
 const { qwiketRouter } = require("./qwiket-lib/lib/qwiketRouter");
+const requestParams = require("./requestParams");
 const port = +process.env.PORT;
 console.log("PORT:", port);
 const url = "http://" + process.env.QAPI + ":" + process.env.QAPIPORT;
@@ -26,7 +37,8 @@ const updateQueryStringParameter = (path, key, value) => {
 var optionsApi = {
     target: url, // target host
     //  logLevel: 'debug',
-
+    changeOrigin: true, // for vhosted sites, changes host header to match to target's host
+    logLevel: "debug",
     onError(err, req, res) {
         console.log("ERROR", { url, err });
         res.writeHead(500, {
@@ -65,18 +77,41 @@ var optionsApi = {
         return newPath;
     },
 };
-
+let apiProxy = createProxyMiddleware(optionsApi);
 app.prepare()
     .then(() => {
         const server = express();
+        var sess = {
+            secret: "asdasfgeet",
+            sameSite: "none",
+            cookie: {
+                maxAge: 365 * 24 * 3600 * 1000,
+            },
+        };
 
+        /*   if (process.env.NODE_ENV === "production") {
+            server.set("trust proxy", 1); // trust first proxy
+            sess.cookie.secure = true; // serve secure cookies
+        }*/
+        server.use(
+            cookieSession({
+                name: "qsession",
+                /* keys: [
+                ], */
+                secret: "dioczxowowooob",
+
+                // Cookie Options
+                maxAge: 24 * 60 * 60 * 1000 * 365, // 24 hours
+            })
+        );
+        // server.use(session(sess));
         server.set("trust proxy", "loopback");
         server.use(favicon(__dirname + "/public/img/blue-bell.png"));
+        // server.use("graphql", apiProxy);
 
         server.use(compression());
         server.use(bodyParser.urlencoded({ extended: false }));
         server.use(bodyParser.json());
-        var apiProxy = proxy(optionsApi);
         server.use("/robots.txt", apiProxy);
         server.use("/get-session", apiProxy);
 
@@ -86,7 +121,7 @@ app.prepare()
         server.use("/ipn/?*", apiProxy);
         server.use("/ipndev/?*", apiProxy);
         server.use("/sitemap.txt", apiProxy);
-        server.use("/disqus-login/?*", apiProxy);
+        //  server.use("/disqus-login/?*", apiProxy);
         // server.use("/sitemaps/:name/?*", apiProxy);
         server.use("/dl/:filename?*", apiProxy);
         server.use("/cdn/*", apiProxy);
@@ -106,10 +141,62 @@ app.prepare()
                 handle(req, res);
             });
         });
+        server.use("/disqus-callback", async (req, res) => {
+            var parts = req.url.split("?");
+            var query = parts[1] || "";
+
+            let s = requestParams(req);
+            let u = `${url}/disqus-callback?${query}&${s}`;
+            console.log("calling fetch /disqus-callback", u);
+            let response = await fetch(u, {
+                // credentials: 'same-origin',
+                method: "GET",
+                credentials: "include",
+            });
+            let json = await response.json();
+            console.log("DISQUS callback", JSON.stringify(json));
+            //  l(chalk.yellow(JSON.stringify({ session: req.session })));
+
+            if (json.success) {
+                const redirect = json.loginRedirect;
+                console.log("REDIRECTING:");
+                return res.redirect(redirect);
+            } else {
+                return res.status(500).json(json);
+            }
+        });
+        server.use("/disqus-login", async (req, res) => {
+            let s = requestParams(req);
+            let u = `${url}/disqus-login?${s}`;
+            console.log("calling fetch", u);
+            let response = await fetch(u, {
+                // credentials: 'same-origin',
+                method: "GET",
+                credentials: "include",
+            });
+            let json = await response.json();
+            console.log("DISQUS-LOGIN", json);
+            console.log(JSON.stringify({ json }));
+
+            if (json.success) {
+                console.log("success");
+                const redirect = json.redirect;
+                return res.redirect(redirect);
+            } else {
+                return res.status(500).json(json);
+            }
+        });
         server.post("/graphql", async (req, res) => {
             let body = req.body;
+            let sessionID = req.session.id;
+            if (!sessionID) {
+                sessionID = generate_key();
+                req.session.id = sessionID;
+            }
+            console.log("sessionID:", req.session.sessionID, req.session.id);
             console.log("graphql:", body);
-            let u = `${url}/graphql`;
+            let s = requestParams(req);
+            let u = `${url}/graphql?${s}`;
             // let u = `http://dev.qwiket.com:8088/api?task=updateUserLayout&pxid=${pxid}&host=${host}&ip=${ip}&XDEBUG_SESSION_START=vscode`;
             console.log("GRAPH URL:", u);
             // console.log(chalk.red.bold("CHANNELL:"), channel, host)

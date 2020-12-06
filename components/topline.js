@@ -6,7 +6,7 @@ import FormControlLabel from "@material-ui/core/FormControlLabel";
 import Tooltip from "@material-ui/core/Tooltip";
 
 import AlertWidget from "./widgets/alert";
-import { refresh } from "../qwiket-lib/lib/qwiketRouter";
+import { refresh } from "../lib/qwiketRouter";
 
 const StyledCheckbox = styled(({ ...other }) => (
     <Checkbox
@@ -43,7 +43,7 @@ const StyledFormControlLabel = styled(({ ...other }) => (
 let Topline = ({ layout, qparams, qstate }) => {
     let { actions, session } = qstate;
     let upd = actions.updateSessionOption;
-    console.log("RENDER TOPLINE");
+    //  console.log("RENDER TOPLINE");
     let hpads = layout.hpads;
     let { loud, thick, dense, dark, band } = session ? session.options : {};
 
@@ -90,7 +90,7 @@ let Topline = ({ layout, qparams, qstate }) => {
                 onChange={(e, v) => {
                     console.log("Changed Loud");
                     upd({ loud: v ? 1 : 0 });
-                    refresh({ qparams });
+                    //  refresh({ qparams });
                 }}
             />
         );
@@ -112,7 +112,7 @@ let Topline = ({ layout, qparams, qstate }) => {
                     onChange={(e, v) => {
                         console.log("Changed And The Band");
                         upd({ thick: v ? 1 : 0 });
-                        refresh({ qparams });
+                        // refresh({ qparams });
                     }}
                 />
             </StyledCheck>
@@ -134,7 +134,7 @@ let Topline = ({ layout, qparams, qstate }) => {
                     onChange={(e, v) => {
                         console.log("Changed And The Band");
                         upd({ dense: v ? 1 : 0 });
-                        refresh({ qparams });
+                        // refresh({ qparams });
                     }}
                 />
             </StyledCheck>
@@ -169,7 +169,7 @@ let Topline = ({ layout, qparams, qstate }) => {
                     onChange={(e, v) => {
                         console.log("Changed And The Band");
                         upd({ band: v ? 1 : 0 });
-                        refresh({ qparams });
+                        // refresh({ qparams });
                     }}
                 />
             </StyledCheck>

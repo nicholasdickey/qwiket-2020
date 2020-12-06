@@ -18,14 +18,14 @@ const Qwiket = ({ qwiket, queueid, qid }) => {
     let tags = qwiket.tags;
     let tagsArray = tags ? tags.split(",") : [];
     let tag = tagsArray[0];
-    if (qwiket.title.indexOf("Veritas") >= 0) {
+    /*  if (qwiket.title.indexOf("Veritas") >= 0) {
         console.log("VERITAS", qwiket);
-    }
+    }*/
     //  console.log("AQWIKET with tag", queueid, qwiket.slug, tag);
     const { error, data } = useQuery(GET_TAG, {
         variables: { slug: tag },
         onCompleted: function onCompleted(data) {
-            console.log("agetTag ", tag, data);
+            //console.log("agetTag ", tag, data);
         },
     });
     // if (!data) return <div />;

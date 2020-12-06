@@ -1,11 +1,15 @@
 import NextApp from "next/app";
 import React from "react";
+import whyDidYouRender from "@welldone-software/why-did-you-render";
 import Head from "next/head";
 import "react-image-lightbox/style.css"; // This only needs to be imported once in your app
 //import { ThemeProvider } from "styled-components";
 import { ThemeProvider } from "@material-ui/styles";
 import CssBaseline from "@material-ui/core/CssBaseline";
 import theme from "../theme";
+if (typeof window !== "undefined" && process.env.NODE_ENV === "development") {
+    whyDidYouRender(React);
+}
 
 export default class App extends NextApp {
     state = {
@@ -21,11 +25,14 @@ export default class App extends NextApp {
     render() {
         const { Component, pageProps } = this.props;
         const meta = this.state.meta;
-        pageProps.setThemeDark = async dark => this.setState({ dark: +dark });
+        pageProps.setThemeDark = dark => {
+            console.log("render setThemeDark", { dark, o: this });
+            if (this.state.dark != dark) this.setState({ dark: +dark });
+        };
         pageProps.setMeta = async meta => this.setState({ meta });
         pageProps.dark = this.state.dark;
         pageProps.meta = this.setState.meta;
-
+        console.log("app setThiemeDark:", pageProps);
         let muiTheme = theme({ dark: this.state.dark });
         return (
             <React.Fragment>

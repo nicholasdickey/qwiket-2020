@@ -2,6 +2,7 @@ import React from "react";
 import chalk from "chalk";
 import styled from "styled-components";
 import Router from "next/router";
+import update from "immutability-helper";
 import useMediaQuery from "@material-ui/core/useMediaQuery";
 import { useTheme } from "@material-ui/core/styles";
 
@@ -64,6 +65,7 @@ import Typography from "@material-ui/core/Typography";
 import Paper from "@material-ui/core/Paper";
 
 import { refresh, route } from "../../lib/qwiketRouter";
+import { getColumnsMap } from "../../lib/layout";
 let defaultPage = {
     w900: {
         normal: [{ type: "stc", width: 1, selector: "newsviews" }],
@@ -139,6 +141,127 @@ let resIcons = [
 /**
  * EDITOR
  */
+let StyledDiv = styled.div`
+    min-width: 600px;
+    color: ${props => props.color};
+    background-color: ${props => props.backgroundColor};
+    & .dialog-root {
+        min-width: 600px;
+    }
+    & .add {
+        color: green;
+        font-size: 1.5rem;
+    }
+    & .page {
+        font-size: 1.5rem;
+        color: ${props => props.color};
+    }
+    & .densities {
+        margin-top: 10px;
+        display: flex;
+        align-items: center;
+        margin-bottom: 20px;
+    }
+    & .res-icon {
+        color: grey;
+        width: 32px;
+        height: 32px;
+    }
+    & .res-icon-selected {
+        color: green;
+        width: 32px;
+        height: 32px;
+    }
+    & .small-res-icon {
+        color: grey;
+        margin-top: 4px;
+        width: 24px;
+        height: 24px;
+    }
+    & .small-res-icon-selected {
+        color: green;
+        margin-top: 4px;
+        width: 24px;
+        height: 24px;
+    }
+    & .expansion-panel {
+        width: 100%;
+    }
+`;
+
+let FooterButtons = styled.div`
+    display: flex;
+`;
+let Title = styled.div`
+    width: 150px;
+    height: 24px;
+    font-size: 0.9rem;
+    text-valign: center;
+    padding-top: 10px;
+    align-self: flex-end;
+    // color:grey;
+`;
+let Text = styled.div`
+    margin-bottom: 20px;
+    margin-top: 20px;
+    color: grey;
+`;
+let Layouts = styled.div`
+    margin-top: 20px;
+`;
+let StyledColumn = styled.div`
+    background-color: ${props => (props.selected ? "green" : "grey")};
+    height: 120px;
+`;
+let MP = styled.div`
+    background-color: ${props => (props.selected ? "green" : "grey")};
+    height: 90px;
+`;
+let MP2 = styled.div`
+    background-color: ${props => (props.selected ? "green" : "grey")};
+    height: 90px;
+    border-left: thin solid white;
+`;
+let MPHeader = styled.div`
+    background-color: ${props => (props.selected ? "green" : "grey")};
+    height: 30px;
+    border-bottom: thin solid white;
+`;
+let ColumnType = styled.div`
+    font-size: 1.5rem;
+    font-weight: 500;
+    margin-right: 60px;
+    width: 160px;
+`;
+let ColumnText = styled.div`
+    margin-left: 40px;
+`;
+let ColumnHeader = styled.div`
+    display: flex;
+    padding: 10px;
+    align-items: center;
+    font-size: 1.2rem;
+    justify-content: space-between;
+`;
+let ColumnFooter = styled.div`
+    display: flex;
+    padding: 10px;
+    font-size: 0.9rem;
+    align-items: center;
+    justify-content: space-between;
+`;
+let ColumnHeaderWrapper = styled.div`
+    margin-bottom: 10px;
+    margin-top: 40px;
+`;
+let AddControl = styled.div`
+    display: flex;
+    align-items: center;
+`;
+let Num = styled.div`
+    font-size: 2rem;
+    color: blue;
+`;
 let LayoutEditor = ({
     width,
     density: defaultDensity,
@@ -152,27 +275,25 @@ let LayoutEditor = ({
     actions,
     numPages: numPagesDefault,
 }) => {
-    let defaultRes = `w${width}`;
-    if (typeof defaultUserLayout === "string") {
-        defaultUserLayout = JSON.parse(defaultUserLayout);
-    }
+    let res = `w${width}`;
+    const [userLayout, setUserLayout] = React.useState(defaultUserLayout);
+
     const [pageType, setPageType] = React.useState(defaultPageType);
     const [layoutNumber, setLayoutNumber] = React.useState(defaultLayoutNumber);
     const [density, setDensity] = React.useState(defaultDensity);
-    const [res, setRes] = React.useState(defaultRes);
-    const [userLayout, setUserLayout] = React.useState(defaultUserLayout);
+    // const [res, setRes] = React.useState(defaultRes);
     const [expanded, setExpanded] = React.useState("edit-panel");
     const [selectedColumn, setSelectedColumn] = React.useState(0);
-    const [update, setUpdate] = React.useState(0);
+
     const [numPages, setNumPages] = React.useState(numPagesDefault);
     const [openSpec, setOpenSpec] = React.useState(openSpecDefault);
-    let open = openSpec.open;
-    if (typeof channelConfig === "string")
-        channelConfig = Immutable.fromJS(JSON.parse(channelConfig));
-    // console.log('RENDER', { layoutNumber, channelConfig: channelConfig.toJS() })
-
     const muiTheme = useTheme();
     const fullScreen = useMediaQuery(muiTheme.breakpoints.down("sm"));
+
+    let open = openSpec.open;
+    //  if (typeof channelConfig === "string")
+    //     channelConfig = JSON.parse(channelConfig);
+    console.log("RENDER", { layoutNumber, channelConfig, userLayout });
 
     let densityOptions = ["Normal", "Thick", "Dense"];
     let densityValues = ["normal", "thick", "dense"];
@@ -187,56 +308,10 @@ let LayoutEditor = ({
     const handleClose = () => {
         setOpen(false);
     };
-    console.log("RENDER LAYOUT EDITOR");
+    // console.log("RENDER LAYOUT EDITOR");
     const backgroundColor = muiTheme.palette.background;
     const color = muiTheme.palette.text.primary;
-    let StyledDiv = styled.div`
-        min-width: 600px;
-        color: ${color};
-        background-color: ${backgroundColor};
-        & .dialog-root {
-            min-width: 600px;
-        }
-        & .add {
-            color: green;
-            font-size: 1.5rem;
-        }
-        & .page {
-            font-size: 1.5rem;
-            color: ${color};
-        }
-        & .densities {
-            margin-top: 10px;
-            display: flex;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-        & .res-icon {
-            color: grey;
-            width: 32px;
-            height: 32px;
-        }
-        & .res-icon-selected {
-            color: green;
-            width: 32px;
-            height: 32px;
-        }
-        & .small-res-icon {
-            color: grey;
-            margin-top: 4px;
-            width: 24px;
-            height: 24px;
-        }
-        & .small-res-icon-selected {
-            color: green;
-            margin-top: 4px;
-            width: 24px;
-            height: 24px;
-        }
-        & .expansion-panel {
-            width: 100%;
-        }
-    `;
+
     let numberLayouts = numPages; // userLayout && userLayout.layout && userLayout.layout.numberLayouts ? userLayout.layout.numberLayouts : 3;
     let items = [];
     let GridItem = styled.div`
@@ -307,46 +382,34 @@ let LayoutEditor = ({
             </IconButton>
         </Grid>
     );
-    let Title = styled.div`
-        width: 150px;
-        height: 24px;
-        font-size: 0.9rem;
-        text-valign: center;
-        padding-top: 10px;
-        align-self: flex-end;
-        // color:grey;
-    `;
-    let Text = styled.div`
-        margin-bottom: 20px;
-        margin-top: 20px;
-        color: grey;
-    `;
-    let Layouts = styled.div`
-        margin-top: 20px;
-    `;
+
     let layout = userLayout.layout;
-    //  console.log({ userLayout })
+    console.log({ userLayout });
     if (!layout) {
         userLayout.layout = {};
-        setTimeout(() => setUserLayout(userLayout), 1);
+        console.log("setUserLayout");
+        setUserLayout(userLayout);
         layout = userLayout.layout;
     }
     let pageTypeLayout = layout[pageType];
     if (!pageTypeLayout) {
         //first try to get the default from channel
         pageTypeLayout = channelConfig.layout[pageType];
-        //   console.log({ pageTypeLayout })
+        console.log({ pageTypeLayout });
         if (!pageTypeLayout) pageTypeLayout = {};
         userLayout.layout[pageType] = pageTypeLayout;
-        setTimeout(() => setUserLayout(userLayout), 1);
+        setUserLayout(userLayout);
     }
     let pageLayout = pageTypeLayout[`l${layoutNumber}`];
     if (!pageLayout) {
         let chanTypeLayout = channelConfig.layout[pageType];
-        //  console.log({ chanTypeLayout: chanTypeLayout.toJS() })
+        console.log({ chanTypeLayout });
         if (chanTypeLayout) {
             let chanPageLayout = chanTypeLayout[`l${layoutNumber}`];
-            // console.log({ page: `l${layoutNumber}`, chanPageLayout: chanPageLayout ? chanPageLayout.toJS() : '' })
+            console.log({
+                page: `l${layoutNumber}`,
+                chanPageLayout: chanPageLayout ? chanPageLayout : "",
+            });
 
             if (chanPageLayout) {
                 pageLayout = chanPageLayout;
@@ -357,17 +420,21 @@ let LayoutEditor = ({
         }
         pageTypeLayout[`l${layoutNumber}`] = pageLayout;
         userLayout.layout[pageType] = pageTypeLayout;
-        setTimeout(() => setUserLayout(userLayout), 1);
+        console.log("setUserLayout2");
+        setUserLayout(userLayout);
     }
     let resLayout = pageLayout[res];
     if (!resLayout) {
         let chanTypeLayout = channelConfig.layout[pageType];
-        //   console.log({ chanTypeLayout: chanTypeLayout.toJS() })
+        console.log({ chanTypeLayout: chanTypeLayout });
         if (chanTypeLayout) {
             let chanPageLayout = chanTypeLayout[`l${layoutNumber}`];
             if (chanPageLayout) {
                 let chanResLayout = chanPageLayout[res];
-                // console.log({ res, chanResLayout: chanResLayout ? chanResLayout.toJS() : '' })
+                console.log({
+                    res,
+                    chanResLayout: chanResLayout ? chanResLayout : "",
+                });
                 if (chanResLayout) {
                     resLayout = chanResLayout;
                 }
@@ -379,21 +446,22 @@ let LayoutEditor = ({
         pageLayout[res] = resLayout;
         pageTypeLayout[`l${layoutNumber}`] = pageLayout;
         userLayout.layout[pageType] = pageTypeLayout;
-        setTimeout(() => setUserLayout(userLayout), 1);
+        console.log("setUserLayout3");
+        setUserLayout(userLayout);
     }
     let densityLayout = resLayout[density];
     if (!densityLayout) {
         let chanTypeLayout = channelConfig.layout[pageType];
-        //   console.log({ layoutNumber, chanTypeLayout: chanTypeLayout.toJS() })
+        console.log({ layoutNumber, chanTypeLayout });
         if (chanTypeLayout) {
             let chanPageLayout = chanTypeLayout[`l${layoutNumber}`];
-            //   console.log({ chanPageLayout: chanPageLayout ? chanPageLayout.toJS() : null })
+            console.log({ chanPageLayout });
             if (chanPageLayout) {
                 let chanResLayout = chanPageLayout[res];
-                //  console.log({ chanResLayout: chanResLayout.toJS() })
+                console.log({ chanResLayout });
                 if (chanResLayout) {
                     let chanDensityLayout = chanResLayout[density];
-                    //   console.log({ density, chanDensityLayout: chanDensityLayout ? chanDensityLayout.toJS() : '' })
+                    console.log({ density, chanDensityLayout });
                     if (chanDensityLayout) {
                         densityLayout = chanDensityLayout;
                     }
@@ -407,10 +475,20 @@ let LayoutEditor = ({
         pageLayout[res] = resLayout;
         pageTypeLayout[`l${layoutNumber}`] = pageLayout;
         userLayout.layout[pageType] = pageTypeLayout;
-        setTimeout(() => setUserLayout(userLayout), 1);
+        console.log("setUserLayout4");
+        setUserLayout(userLayout);
     }
     let totalWidth = 1;
-    switch (res) {
+    if (res != "w000") {
+        totalWidth = getColumnsMap()[res][density];
+    }
+    console.log("RED1", {
+        res,
+        density,
+        totalWidth,
+        columnsMap: getColumnsMap(),
+    });
+    /*  switch (res) {
         case "w900":
             totalWidth = 4;
             break;
@@ -440,11 +518,11 @@ let LayoutEditor = ({
                 default:
                     totalWidth = 8;
             }
-    }
+    }*/
     let usedWidth = 0;
     let hasMP = false;
     let totalColumns = 0;
-    console.log({ densityLayout });
+    // console.log({ densityLayout });
     let editorColumns = densityLayout
         ? densityLayout.map((column, index) => {
               let type = column.type;
@@ -453,24 +531,8 @@ let LayoutEditor = ({
               usedWidth += width;
               totalColumns++;
               let selected = index == selectedColumn;
-              let StyledColumn = styled.div`
-                  background-color: ${selected ? "green" : "grey"};
-                  height: 120px;
-              `;
-              let MP = styled.div`
-                  background-color: ${selected ? "green" : "grey"};
-                  height: 90px;
-              `;
-              let MP2 = styled.div`
-                  background-color: ${selected ? "green" : "grey"};
-                  height: 90px;
-                  border-left: thin solid white;
-              `;
-              let MPHeader = styled.div`
-                  background-color: ${selected ? "green" : "grey"};
-                  height: 30px;
-                  border-bottom: thin solid white;
-              `;
+              console.log("render column", { index, width, selected });
+
               let columnIndex = index;
               let col;
               if (type == "stc")
@@ -482,7 +544,7 @@ let LayoutEditor = ({
                               setSelectedColumn(columnIndex);
                           }}>
                           {" "}
-                          <StyledColumn />
+                          <StyledColumn selected={selected} />
                       </Grid>
                   );
               else
@@ -494,14 +556,14 @@ let LayoutEditor = ({
                               setSelectedColumn(columnIndex);
                           }}>
                           {" "}
-                          <StyledColumn>
-                              <MPHeader />
+                          <StyledColumn selected={selected}>
+                              <MPHeader selected={selected} />
                               <Grid container>
                                   <Grid item xs={9}>
-                                      <MP />
+                                      <MP selected={selected} />
                                   </Grid>
                                   <Grid item xs={3}>
-                                      <MP2 />
+                                      <MP2 selected={selected} />
                                   </Grid>
                               </Grid>
                           </StyledColumn>
@@ -511,49 +573,17 @@ let LayoutEditor = ({
               return col;
           })
         : {};
+    //console.log("cont1");
     let remainingWidth = totalWidth - usedWidth;
 
-    let ColumnType = styled.div`
-        font-size: 1.5rem;
-        font-weight: 500;
-        margin-right: 60px;
-        width: 160px;
-    `;
-    let ColumnText = styled.div`
-        margin-left: 40px;
-    `;
-    let ColumnHeader = styled.div`
-        display: flex;
-        padding: 10px;
-        align-items: center;
-        font-size: 1.2rem;
-        justify-content: space-between;
-    `;
-    let ColumnFooter = styled.div`
-        display: flex;
-        padding: 10px;
-        font-size: 0.9rem;
-        align-items: center;
-        justify-content: space-between;
-    `;
-    let ColumnHeaderWrapper = styled.div`
-        margin-bottom: 10px;
-        margin-top: 40px;
-    `;
     let sel = densityLayout[selectedColumn];
     if (!sel) {
+        console.log("setSelectedColumn");
         setSelectedColumn(0);
         sel = densityLayout[0];
     }
-    let AddControl = styled.div`
-        display: flex;
-        align-items: center;
-    `;
-    let Num = styled.div`
-        font-size: 2rem;
-        color: blue;
-    `;
 
+    console.log("cont2", sel);
     let columnHeader = (
         <ColumnHeaderWrapper>
             <Paper elevation={8}>
@@ -597,9 +627,8 @@ let LayoutEditor = ({
             </Paper>
         </ColumnHeaderWrapper>
     );
-    let FooterButtons = styled.div`
-        display: flex;
-    `;
+
+    // console.log("cont3", { totalWidth, usedWidth, remainingWidth });
     let columnFooter = (
         <ColumnHeaderWrapper>
             <Paper elevation={8}>
@@ -636,67 +665,146 @@ let LayoutEditor = ({
             </Paper>
         </ColumnHeaderWrapper>
     );
+    // console.log("cont4");
     const addNewPage = () => {
         let pageTypeLayout = userLayout.layout[pageType];
         let numKeys = Object.keys(pageTypeLayout);
         if (numKeys.length == 10) return;
         let newKey = +numKeys.length + 1;
         userLayout.layout[pageType][`l${newKey}`] = defaultPage;
-        //  console.log("1234 ", { numKeys, newKey, userLayout, pageTypeLayout })
+        //console.log("1234 ", { numKeys, newKey, userLayout, pageTypeLayout });
         setNumPages(newKey);
         setLayoutNumber(newKey);
     };
     if (openSpec) {
         if (openSpec.newPage) {
+            console.log("openSpec.newPage");
             setOpenSpec({ open: true, newPage: false });
-            setTimeout(() => addNewPage(), 100);
+            addNewPage();
         }
     }
     const changeColumn = ({ action, type }) => {
         console.log("userLayout changeColumn", { action, type });
-        const ul = Immutable.fromJS(
-            userLayout.layout[pageType][`l${layoutNumber}`][res][density]
-        ).toJS();
+        let newLayout;
+        const ul =
+            userLayout.layout[pageType][`l${layoutNumber}`][res][density];
+
         //  console.log('userLayout before:', ul)
 
         if (action == "delete-layout") {
-            let chanTypeLayout = channelConfig.get("layout").get(pageType);
+            let chanTypeLayout = channelConfig["layout"][pageType];
             //  console.log({ chanTypeLayout: chanTypeLayout.toJS() })
             if (chanTypeLayout) {
-                let chanPageLayout = chanTypeLayout.get(`l${layoutNumber}`);
+                let chanPageLayout = chanTypeLayout[`l${layoutNumber}`];
                 if (chanPageLayout) {
-                    //  console.log({ chanPageLayout })
-                    let chanResLayout = chanPageLayout.get(res);
-                    // console.log({ chanResLayout: chanResLayout.toJS() })
-                    if (chanResLayout) {
-                        let chanDensityLayout = chanResLayout.get(density);
-                        console.log({
-                            chanPageLayout,
-                            chanResLayout,
-                            density,
-                            chanDensityLayout: chanDensityLayout
-                                ? chanDensityLayout.toJS()
-                                : "",
-                        });
-                        if (chanDensityLayout) {
-                            densityLayout = chanDensityLayout.toJS();
-                        }
-                    }
+                    console.log({ chanPageLayout, userLayout });
+                    newLayout = update(userLayout, {
+                        layout: {
+                            [pageType]: {
+                                [`l${layoutNumber}`]: { $set: chanPageLayout },
+                            },
+                        },
+                    });
                 }
             }
         } else if (action == "add") {
-            densityLayout.push(
+            newLayout = update(userLayout, {
+                layout: {
+                    [pageType]: {
+                        [`l${layoutNumber}`]: ln =>
+                            update(ln || {}, {
+                                //auto vivification
+                                [res]: rs =>
+                                    update(rs || {}, {
+                                        [density]: dens =>
+                                            update(dens || [], {
+                                                $push: [
+                                                    type == "stc"
+                                                        ? {
+                                                              type,
+                                                              width:
+                                                                  type == "stc"
+                                                                      ? 1
+                                                                      : 4,
+                                                          }
+                                                        : pageType == "newsline"
+                                                        ? {
+                                                              type,
+                                                              width: 4,
+                                                              selector:
+                                                                  "newsline",
+                                                              msc: "navigator",
+                                                          }
+                                                        : {
+                                                              type,
+                                                              width: 4,
+                                                              selector: "topic",
+                                                              msc: "feed",
+                                                          },
+                                                ],
+                                            }),
+                                    }),
+                            }),
+                    },
+                },
+            });
+            /*
+              newLayout = newLayout = update(userLayout, {
+                layout: {
+                    [pageType]: {
+                        [`l${layoutNumber}`]: {
+                            [res]: {
+                                [density]: {
+                                    $push:
+                                        type == "stc"
+                                            ? {
+                                                  type,
+                                                  width: type == "stc" ? 1 : 4,
+                                              }
+                                            : pageType == "newsline"
+                                            ? {
+                                                  type,
+                                                  width: 4,
+                                                  selector: "newsline",
+                                                  msc: "navigator",
+                                              }
+                                            : {
+                                                  type,
+                                                  width: 4,
+                                                  selector: "topic",
+                                                  msc: "feed",
+                                              },
+                                },
+                            },
+                        },
+                    },
+                },
+            });*/
+            /* densityLayout.push(
                 type == "stc"
                     ? { type, width: type == "stc" ? 1 : 4 }
                     : pageType == "newsline"
                     ? { type, width: 4, selector: "newsline", msc: "navigator" }
                     : { type, width: 4, selector: "topic", msc: "feed" }
-            );
+            );*/
         } else if (action == "delete") {
-            densityLayout.splice(selectedColumn, 1);
-            // console.log("userLayout splice", { densityLayout, selectedColumn })
+            newLayout = update(userLayout, {
+                layout: {
+                    [pageType]: {
+                        [`l${layoutNumber}`]: {
+                            [res]: {
+                                [density]: {
+                                    $splice: [[selectedColumn, 1]],
+                                },
+                            },
+                        },
+                    },
+                },
+            });
+            // densityLayout.splice(selectedColumn, 1);
+            console.log("userLayout splice", { densityLayout, selectedColumn });
         } else {
-            let column = densityLayout[selectedColumn];
+            let column = { ...densityLayout[selectedColumn] };
             switch (action) {
                 case "plus":
                     column.width += 1;
@@ -706,18 +814,52 @@ let LayoutEditor = ({
                     console.log("minus", column.width);
                     break;
             }
-            densityLayout[selectedColumn] = column;
+            // densityLayout[selectedColumn] = column;
+            newLayout = update(userLayout, {
+                layout: {
+                    [pageType]: {
+                        [`l${layoutNumber}`]: {
+                            [res]: {
+                                [density]: {
+                                    [selectedColumn]: { $set: column },
+                                },
+                            },
+                        },
+                    },
+                },
+            });
         }
+        /* const newLayout = update{ ...userLayout };
         userLayout.layout[pageType][`l${layoutNumber}`][res][
             density
-        ] = Immutable.fromJS(densityLayout).toJS();
+        ] = densityLayout;*/
+        /* const newLayout = update(userLayout, {
+            layout: {
+                [pageType]: {
+                    [`l${layoutNumber}`]: {
+                        [res]: { [density]: { $set: densityLayout } },
+                    },
+                },
+            },
+        });*/
         //  console.log('userLayout after:', { userLayout }, userLayout.layout[pageType][`l${layoutNumber}`][res][density])
-        const newLayout = Immutable.fromJS(userLayout);
-        //  console.log("setting ", { newLayout: newLayout.toJS(), userLayout })
-        setUserLayout(userLayout);
-        setUpdate(Math.random(1000));
+        // console.log("111");
+        // setUpdate(Math.random(1000));
+        console.log("setting ", {
+            pageType,
+            layoutNumber,
+            res,
+            density,
+            userLayout,
+            newLayout,
+        });
+        setUserLayout(newLayout);
+        // console.log("222");
     };
-    //  console.log('userLayout render:', userLayout.layout[pageType][`l${layoutNumber}`][res][density])
+    console.log(
+        "userLayout render:",
+        userLayout.layout[pageType][`l${layoutNumber}`][res][density]
+    );
 
     return (
         <Dialog
@@ -726,7 +868,7 @@ let LayoutEditor = ({
             open={open}
             onClose={handleClose}
             aria-labelledby="responsive-dialog-title">
-            <StyledDiv>
+            <StyledDiv color={color} backgroundColor={backgroundColor}>
                 <DialogTitle id="responsive-dialog-title">{`Layout Editor`}</DialogTitle>
 
                 <DialogContent>
@@ -876,8 +1018,10 @@ let LayoutEditor = ({
                                 userLayout,
                                 string: JSON.stringify(userLayout),
                             });
-                            actions.updateUserLayout({
-                                userLayout: JSON.stringify(userLayout),
+                            actions.updateUserConfig({
+                                userLayout: {
+                                    $set: userLayout,
+                                },
                             }); /*refresh({ qparams })*/
                         }}
                         color="primary"
@@ -889,26 +1033,7 @@ let LayoutEditor = ({
         </Dialog>
     );
 };
-export let LayoutSwitch = ({
-    layout,
-    qparams,
-    userLayout,
-    actions,
-    width,
-    countData,
-    ...other
-}) => {
-    //if (Root.qparams) qparams = Root.qparams;
-
-    const [open, setOpen] = React.useState({ open: false, newPage: false });
-    const matches = useMediaQuery("(min-width:900px)");
-    console.log("RENDER LayoutSwitch", open);
-    //  console.log({ matches })
-    //if (!matches) return <div />;
-
-    let layoutNumber = qparams.layout;
-    if (!layoutNumber) layoutNumber = 1;
-    let StyledDiv = styled.div`
+let LSDiv = styled.div`
         height: 58px;
         margin-bottom:-14px;
         display:flex;
@@ -923,6 +1048,48 @@ export let LayoutSwitch = ({
             color: grey;
         }
         `;
+let AddDiv = styled.div`
+    // margin-left:40px;
+`;
+let GridItem = styled.div`
+        font - size: 1.0rem;
+        `;
+let Filler = styled.div`
+    width: 40px;
+`;
+let ResIcon = styled.div`
+    display: flex;
+    align-items: center;
+    height: 48px;
+    margin-right: 6px;
+    width: 120px;
+    color: grey;
+`;
+// console.log({ countData: countData ? countData.toJS() : '' })
+let CountText = styled.div`
+    display: flex;
+    align-itemd: flex-begin;
+`;
+export let LayoutSwitch = ({
+    layout,
+    qparams,
+    userLayout,
+    actions,
+    width,
+    countData,
+    ...other
+}) => {
+    //if (Root.qparams) qparams = Root.qparams;
+
+    const [open, setOpen] = React.useState({ open: false, newPage: false });
+    const matches = useMediaQuery("(min-width:900px)");
+    console.log("RENDER LayoutSwitch", open, actions);
+    //  console.log({ matches })
+    //if (!matches) return <div />;
+
+    let layoutNumber = qparams.layout;
+    if (!layoutNumber) layoutNumber = 1;
+
     //console.log({ layout, width })
     let numPages = layout.numPages;
     let resIcon = resIcons[[900, 1200, 1800, 2100].indexOf(width)];
@@ -931,12 +1098,6 @@ export let LayoutSwitch = ({
     //console.log("userLayout 111:", JSON.stringify(userLayout, null, 4))
     let numberLayouts = numPages;
     let items = [];
-    let GridItem = styled.div`
-        font - size: 1.0rem;
-        `;
-    let Filler = styled.div`
-        width: 40px;
-    `;
 
     for (var i = 0; i < numberLayouts; i++) {
         let k = i + 1;
@@ -963,9 +1124,7 @@ export let LayoutSwitch = ({
         );
         items.push(item);
     }
-    let AddDiv = styled.div`
-        // margin-left:40px;
-    `;
+
     let add = (
         <Grid item sm>
             <IconButton>
@@ -989,19 +1148,7 @@ export let LayoutSwitch = ({
             </IconButton>
         </Grid>
     );
-    let ResIcon = styled.div`
-        display: flex;
-        align-items: center;
-        height: 48px;
-        margin-right: 6px;
-        width: 120px;
-        color: grey;
-    `;
-    // console.log({ countData: countData ? countData.toJS() : '' })
-    let CountText = styled.div`
-        display: flex;
-        align-itemd: flex-begin;
-    `;
+
     let Count = () => (
         <span className="q-count-text">
             {countData ? (
@@ -1012,9 +1159,9 @@ export let LayoutSwitch = ({
             ) : null}
         </span>
     );
-    console.log(chalk.red("open", open));
+    //console.log(chalk.red("open", open));
     return (
-        <StyledDiv>
+        <LSDiv>
             {open.open ? (
                 <LayoutEditor
                     qparams={qparams}
@@ -1024,6 +1171,7 @@ export let LayoutSwitch = ({
                     layoutNumber={layoutNumber}
                     numPages={numPages}
                     width={width}
+                    actions={actions}
                     {...other}
                 />
             ) : null}
@@ -1050,6 +1198,9 @@ export let LayoutSwitch = ({
                 {add}
                 {edit}
             </Grid>
-        </StyledDiv>
+        </LSDiv>
     );
+};
+LayoutEditor.whyDidYouRender = {
+    logOnDifferentValues: true,
 };

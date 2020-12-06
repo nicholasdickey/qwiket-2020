@@ -199,7 +199,7 @@ const x = (html, isZoom, image) => {
         //console.log("catedit 12",html)
         let v = $("<div/>").html(html).contents();
         v.find(`style`).remove();
-        console.log("x-image", image);
+        //  console.log("x-image", image);
         if (image && image.length > 3) v.find(`img[src*="${image}"]`).remove();
         //v.find('.twitter-tweet').remove();
         v.find(`img:not([src])`).each(function () {
@@ -283,11 +283,11 @@ class ImageRenderer extends Component {
     render() {
         const props = this.props;
         const state = this.state;
-        console.log("render Image", { props });
+        //  console.log("render Image", { props });
         let { src, alt, index, coreImage } = props;
-        console.log("RENDER IMAGE", { src, coreImage });
+        //  console.log("RENDER IMAGE", { src, coreImage });
         if (coreImage && coreImage.trim() && src.indexOf(coreImage) >= 0) {
-            console.log("DUPLICATE IMAGE");
+            //  console.log("DUPLICATE IMAGE");
             return <div>{`II src:${src} cI:${coreImage}`}</div>;
         }
 
@@ -367,7 +367,7 @@ class LinkRenderer extends Component {
         let { href, index, dataId, theme, ...pr } = props;
         let url = href;
         if (typeof url !== "string") return <div />;
-        console.log({ url });
+        //   console.log({ url });
         if (url && url.indexOf("youtube.com") >= 0 && url.indexOf("url=") < 0) {
             //  console.log("youtu.be 21", { url });
             let w = url.split("v=");
@@ -395,7 +395,7 @@ class LinkRenderer extends Component {
             url.indexOf("youtube.com") >= 0
         ) {
             const htext = href;
-            console.log("youtu.be 210", { htext });
+            //   console.log("youtu.be 210", { htext });
             let w = htext.split("url=");
             let l = w ? w.length : 0;
             let url2 = decodeURIComponent(w[l - 1]);
@@ -447,11 +447,11 @@ class LinkRenderer extends Component {
         } else if (url && url.indexOf("twitter.com") >= 0) {
             let href2 = href;
             if (href.indexOf("pic.twitter.com") >= 0) {
-                console.log("pic.twitter.com", {
+                /*  console.log("pic.twitter.com", {
                     url,
                     props,
                     ah: href.split("—")[0],
-                });
+                });*/
                 href2 = href.split("—")[0];
             }
             let hurl = href2; // href.replace('pic.twitter.com', 'twitter.com');
@@ -627,7 +627,7 @@ const processBlock = ({
                 let leftPart = sw[0];
                 let rightPart = sw[1];
 
-                console.log("SPLIT:", { leftPart, rightPart, coreImage, sw });
+                //  console.log("SPLIT:", { leftPart, rightPart, coreImage, sw });
                 let lastI = leftPart.lastIndexOf("<");
                 leftPart = leftPart.substring(0, lastI);
                 lastI = rightPart.indexOf(">");
@@ -761,19 +761,19 @@ export const renderMarkdown = ({
     let html = null;
     let embeds = null;
     let changed = false;
-    if (md.indexOf("undefined") >= 0)
-        console.log("renderMArkdown", { blockType, md });
+    //  if (md.indexOf("undefined") >= 0)
+    //      console.log("renderMArkdown", { blockType, md });
     md = md.replace(/undefined!/gi, "!");
-    if (md.indexOf("undefined") >= 0)
-        console.log("renderMArkdown2", { blockType, md });
+    //  if (md.indexOf("undefined") >= 0)
+    //      console.log("renderMArkdown2", { blockType, md });
     //console.log("renderMarkdown", blockType)
     try {
         //  md = md.replace(/(^|\s)(#[a-z\d-]+)/ig, `$1 < span class="hashtag" >\\$2</span > `);
         //  md = md.replace(/<a /ig, '<a target="article" ')
         //, className: "q-qwiket-a", target: { url: "_blank" }
         const md2 = md; //linkifyHtml(`<div> ${md}</div > `, { defaultPropocol: 'https' });
-        if (md.indexOf("undefined") >= 0)
-            console.log("after linkify", { blockType, md2 });
+        //  if (md.indexOf("undefined") >= 0)
+        //     console.log("after linkify", { blockType, md2 });
         md = md2;
         const lf = linkify.find(md);
         // console.log("linkify.find", lf);
@@ -793,8 +793,8 @@ export const renderMarkdown = ({
             let crest = md.trim().slice(1);
 
             md = `< p > <span class="q-drop" >${c}</span>${crest}</p > `;
-            if (md.indexOf("That was no sweet") >= 0)
-                console.log(" rendering dropCap", { md });
+            //  if (md.indexOf("That was no sweet") >= 0)
+            //     console.log(" rendering dropCap", { md });
         }
     }
     let ret = "";
@@ -944,8 +944,8 @@ export const renderMarkdown = ({
         });
     }
 
-    if (md.indexOf("That was no sweet") >= 0)
-        console.log("renderMArkdown AFTER", { ret });
+    //  if (md.indexOf("That was no sweet") >= 0)
+    //    console.log("renderMArkdown AFTER", { ret });
     return ret;
 };
 const Image = styled.img`
@@ -965,7 +965,7 @@ const RenderImage = ({
     coreImage,
 }) => {
     const [open, setOpen] = useState(false);
-    console.log("RenderImage:", image);
+    //   console.log("RenderImage:", image);
     return (
         <div data-id={dataId ? dataId : "image-wrapper1"}>
             {showImage ? (
@@ -983,7 +983,7 @@ const RenderImage = ({
                         position: "relative",
                         top: 0,
                         left: 0,
-                        zIndex: 102,
+                        zIndex: 0,
                     }}>
                     <Lightbox
                         mainSrc={image}
@@ -1037,7 +1037,7 @@ const QwiketRenderer = ({
 }) => {
     const muiTheme = theme;
     if (tagImage) {
-        console.log("RENDER tagImage");
+        // console.log("RENDER tagImage");
     }
     // console.log("Q RENDERERER", { theme })
     const palette = muiTheme.palette;
@@ -1091,7 +1091,7 @@ const QwiketRenderer = ({
             : null;
     let shaded = d.shaded ? 1 : 0;
     const timestamp = d.published_time;
-    console.log({ timestamp });
+    //  console.log({ timestamp });
     const now = (Date.now() / 1000) | 0;
     const lapsed = timeLapsed({ timestamp });
     const catAvatar = d.catIcon ? d.catIcon : d.categoryIcon;
@@ -1138,9 +1138,9 @@ const QwiketRenderer = ({
     //render description and body blocks into an array
     let blocks = [];
     if (image) {
-        if (description.indexOf("That was no sweet") >= 0)
-            console.log("adding image:", image);
-        console.log("adding image", image);
+        // if (description.indexOf("That was no sweet") >= 0)
+        //      console.log("adding image:", image);
+        // console.log("adding image", image);
         blocks.push({ blockType: "image", image });
     }
     if (
@@ -1151,8 +1151,8 @@ const QwiketRenderer = ({
     ) {
         // if (full)
         //     console.log("r1 0 react:", { description });
-        if (description.indexOf("That was no sweet") >= 0)
-            console.log("first case", description);
+        //if (description.indexOf("That was no sweet") >= 0)
+        //    console.log("first case", description);
         if (typeof window !== "undefined")
             description = $("<textarea />").html(description).text();
         if (showDescription)
@@ -1203,8 +1203,8 @@ const QwiketRenderer = ({
     ) {
         //  if (full)
         //     console.log(' r1 body.blocks', { body })
-        if (description.indexOf("That was no sweet") >= 0)
-            console.log("adding dropCap", { description });
+        //  if (description.indexOf("That was no sweet") >= 0)
+        //     console.log("adding dropCap", { description });
         if (reshare && reshare != 100)
             blocks.push({
                 blockType: "text",
@@ -1286,12 +1286,12 @@ const QwiketRenderer = ({
                     let lw = html.split("<p>");
                     //  console.log("first letter split", { html, lw })
                     if (lw.length > 1) {
-                        console.log("first letter ppp");
+                        //  console.log("first letter ppp");
                         let c = lw[1].trim().charAt(0);
 
                         if (c != "<" && c != "&") {
                             let crest = lw[1].trim().slice(1);
-                            console.log("first letter", { crest, c });
+                            //  console.log("first letter", { crest, c });
                             lw[1] = `<span class="q-drop"> ${c}</span > ${crest} `;
                             html = lw.join("<p>");
                         } else if (html.indexOf('class="drop"') >= 0) {
@@ -1383,8 +1383,8 @@ const QwiketRenderer = ({
                     setState: update => this.setState(update),
                 });
             case "image": {
-                if (description.indexOf("That was no sweet") >= 0)
-                    console.log("image block", image);
+                // if (description.indexOf("That was no sweet") >= 0)
+                //    console.log("image block", image);
                 let coreImageW = image.split(".");
                 if (coreImageW.length > 1) {
                     for (var i = 0; i < coreImageW.length - 1; i++)
@@ -1394,7 +1394,7 @@ const QwiketRenderer = ({
                 coreImageW = coreImage.split("/");
                 coreImage = coreImageW[coreImageW.length - 1];
                 //coreImage = coreImageW[coreImageW.length > 1 ? coreImageW.length - 2 : 0];
-                console.log({ coreImage, image });
+                //  console.log({ coreImage, image });
                 return (
                     <RenderImage
                         dataId={`image-dds-${i}`}
@@ -1659,7 +1659,7 @@ const QwiketRenderer = ({
         }
     `;
     //console.log("QwiketRenderer RENDER", { textColor })
-    console.log({ blocks });
+    //  console.log({ blocks });
     const Blocks = styled.div`
         margin-top: ${reshare == 2 ? "-20" : "10"}px;
     `;

@@ -79,7 +79,7 @@ class Queue extends React.Component {
     render = () => {
         let { queueid, qid, items, border, qparams, qstate } = this.props;
 
-        console.log("show items:", queueid, items);
+        //  console.log("show items:", queueid, items);
         return (
             <div>
                 {items.map(p => (
@@ -103,20 +103,26 @@ const QwiketsColumn = ({ qparams, qstate, selector, queueid }) => {
     const [pageState, setPage] = React.useState(0);
     const [lastPage, setLastPage] = React.useState(false);
     const [qid, setQid] = React.useState(0);
-    // console.log("RENDER completed ", queueid);
+    console.log("RENDER QwiketsColumn ", selector, queueid);
     let page = pageState ? pageState : 0;
 
     let silo = 3;
     let sortBy = "published_time";
     if (selector == "newsviews") sortBy = "shared_time";
     let border = selector == "feed" ? true : false;
-    let search = "@reshare:{2|100}";
+    let search = "@reshare:{0|100}";
+    switch (selector) {
+        case "newsviews":
+            sortBy = "shared_time";
+            search = "@reshare:{2|100}";
+            break;
+    }
     if (selector.indexOf("$") == 0) search = selector.substr(1);
     const { error, data, fetchMore } = useQuery(QWIKET_QUERY, {
         variables: { search, page, sortBy, silo, qid, environment: 0 },
         onCompleted: data => {
             if (!data) return;
-            console.log("completed QWIKET_QUERY", queueid, page, data);
+            // console.log("completed QWIKET_QUERY", queueid, page, data);
             let nqid = +(data.qwiketQuery ? data.qwiketQuery.qid : 0);
             if (nqid != qid) setQid(nqid);
             //setItems(data.qwiketQuery.qwikets);
@@ -152,11 +158,11 @@ const QwiketsColumn = ({ qparams, qstate, selector, queueid }) => {
     };
     const fetchPage = page => {
         setPage(page);
-        console.log("handle fetchNextPage", {
+        /* console.log("handle fetchNextPage", {
             page,
             qid,
             queueid,
-        });
+        }); */
         fetchMore({
             variables: {
                 search,
@@ -167,14 +173,14 @@ const QwiketsColumn = ({ qparams, qstate, selector, queueid }) => {
             },
             updateQuery: (prev, { fetchMoreResult }) => {
                 if (!fetchMoreResult) return data;
-                console.log("updateQuery ", {
+                /* console.log("updateQuery ", {
                     page,
                     qid,
                     queueid,
                     data,
                     prev,
                     fetchMoreResult,
-                });
+                }); */
                 /*   console.log("before merged", {
                     queueid,
                     data,
@@ -190,7 +196,7 @@ const QwiketsColumn = ({ qparams, qstate, selector, queueid }) => {
                           +fetchMoreResult.qwiketQuery.qid
                         ? fetchMoreResult.qwiketQuery.qwikets
                         : data.qwiketQuery.qwikets;
-                console.log("merged array:", { queueid, ma });
+                //   console.log("merged array:", { queueid, ma });
                 let qwiketQuery = Object.assign({}, data.qwiketQuery, {
                     total: +fetchMoreResult.qwiketQuery.total,
                     qid: +fetchMoreResult.qwiketQuery.qid,
@@ -199,7 +205,7 @@ const QwiketsColumn = ({ qparams, qstate, selector, queueid }) => {
                 let merged = Object.assign({}, data, {
                     qwiketQuery,
                 });
-                console.log("merged", { queueid, merged });
+                //  console.log("merged", { queueid, merged });
                 setItems(ma);
                 if (merged.qwiketQuery.qid != qid)
                     setQid(merged.qwiketQuery.qid);
@@ -214,7 +220,7 @@ const QwiketsColumn = ({ qparams, qstate, selector, queueid }) => {
         const nextPage = 0;
         setPage(nextPage);
         // setItems([]);
-        console.log("completed fetchFirstPage", queueid);
+        //   console.log("completed fetchFirstPage", queueid);
         /*refetch({
             search,
             page: nextPage,

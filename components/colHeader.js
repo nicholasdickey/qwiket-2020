@@ -21,7 +21,7 @@ export let ColHeader = ({
     res,
     pageType,
     density,
-    updateUserLayout,
+    updateUserConfig,
     userLayout,
     colType,
     chanConfig,
@@ -35,7 +35,7 @@ export let ColHeader = ({
     //  console.log("ColHeader", { chanConfig, qparams, layoutNumber, selector, selectors, colIndex, res, pageType, density, updateUserLayout, userLayout, colType })
     const submit = selector => {
         console.log("submit:", {
-            updateUserLayout,
+            updateUserConfig,
             userLayout,
             pageType,
             colIndex,
@@ -45,7 +45,7 @@ export let ColHeader = ({
         });
         changeUserLayout({
             qparams,
-            updateUserLayout,
+            updateUserConfig,
             userLayout,
             pageType,
             colIndex,
@@ -111,8 +111,10 @@ export let ColHeader = ({
                             submit(e.target.value);
                         }
                     }}>
-                    {selects.map(option => (
-                        <MenuItem key={option.name} value={option.name}>
+                    {selects.map((option, i) => (
+                        <MenuItem
+                            key={`${option.name}-${i}`}
+                            value={option.name}>
                             {option.value}
                         </MenuItem>
                     ))}

@@ -132,11 +132,11 @@ const DatelineBand = ({
     const muiTheme = useTheme();
     const backgroundColor = muiTheme.palette.background.default;
     const color = muiTheme.palette.text.primary;
-    // console.log("HEADER", { palete: muiTheme.palette })
+    console.log("DATELINE BAND", { user });
     const linkColor = muiTheme.palette.linkColor;
     let subscr_status = +user?.subscr_status;
     if (!subscr_status) subscr_status = 0;
-    //console.log({ subscr_status })
+    console.log({ subscr_status });
     let starColor = green[700];
     switch (subscr_status) {
         case 1:
@@ -212,19 +212,25 @@ const DatelineBand = ({
         align-items: flex-begin;
     `;
     let channelConfig = channel.config;
-    let hometown = channelConfig?.hometown || "Boise, ID";
+    let hometown = channelConfig?.hometown || "HOMELESS";
 
     let channelSlug = channel.channelslug;
     //console.log("CHANNEL:", channelSlug);
     let date = new Date();
     let dateStrging = date.toDateString();
-    let name = user?.user_name;
+    let name = user?.userName;
     let approver = user?.approver;
     let avatar = user?.avatar;
-    let userLayout = user?.user_layout;
+    let userLayout = user?.config?.userLayout;
 
-    let isLoggedIn = user && user.isLoggedIn ? true : false;
-    //console.log("user userLayout", { user, isLoggedIn });
+    let isLoggedIn = name ? true : false;
+    console.log("user userLayout", {
+        user,
+        name,
+        avatar,
+        userLayout,
+        isLoggedIn,
+    });
 
     let LayoutSwitchWrap = styled.div`
         display: none;
@@ -241,7 +247,7 @@ const DatelineBand = ({
                 {isLoggedIn ? (
                     <HorizWrap>
                         <AvatarGroup>
-                            <Image src={avatar} width={32} height={32} />
+                            <img src={avatar} width={32} height={32} />
                             {subscr_status > 0 ? <SubscriberStar /> : null}
                         </AvatarGroup>
                     </HorizWrap>
@@ -264,11 +270,8 @@ const DatelineBand = ({
                             <SubTitle>
                                 <a
                                     onClick={() => {
-                                        console.log(
-                                            "sign out:",
-                                            `/disqus-logout?channel=${channelSlug}`
-                                        );
-                                        window.location = `/channel/${channelSlug}?logout=1`;
+                                        console.log("sign out:");
+                                        qstate.actions.userLogout();
                                     }}>
                                     Sign Out
                                 </a>
@@ -295,6 +298,7 @@ const DatelineBand = ({
                     qparams={qparams}
                     userLayout={userLayout}
                     channelConfig={channelConfig}
+                    actions={actions}
                     {...other}
                 />
             </HorizWrap>
@@ -622,7 +626,7 @@ let Header = ({ pageType, layout, qparams, qstate, ...other }) => {
         newslineLogo,
         config,
     } = channel ? channel : {};
-
+    console.log("RENDER HEADER actions", actions);
     //  console.log({ newsline: newsline.toJS(), session: session.toJS() })
     const StyledHeader = styled.div`
         width: 100%;
@@ -634,7 +638,7 @@ let Header = ({ pageType, layout, qparams, qstate, ...other }) => {
             channel: channelSlug,
         },
     });
-    console.log("RENDER HEADER newslineLogo:", newslineLogo);
+    //  console.log("RENDER HEADER newslineLogo:", newslineLogo);
     return (
         <StyledHeader>
             <TitleBand

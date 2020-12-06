@@ -1,8 +1,9 @@
 import React from "react";
 import styled from "styled-components";
 import { makeStyles } from "@material-ui/core/styles";
+import update from "immutability-helper";
 import Bowser from "bowser";
-import { withApollo } from "../lib/apollo";
+import withApollo from "../lib/apollo";
 import { useQuery, useLazyQuery, useMutation } from "@apollo/react-hooks";
 import { gql } from "apollo-boost";
 var debounce = require("lodash.debounce");
@@ -10,6 +11,9 @@ import Layout from "../lib/layout";
 import LayoutView from "../components/layoutView";
 import { Context as ResponsiveContext } from "react-responsive";
 import Qwikets from "../components/columns/qwikets";
+import u from "../lib/utils";
+import Backdrop from "@material-ui/core/Backdrop";
+import CircularProgress from "@material-ui/core/CircularProgress";
 const GET_CHANNEL = gql`
     query storeGetChannel($ns: String) {
         storeGetChannel(newslineSlug: $ns) {
@@ -50,22 +54,10 @@ const GET_CHANNEL = gql`
         }
     }
 `;
-const GET_USER = gql`
-    query storeGetUser($ns: String) {
-        storeGetUser(newslineSlug: $ns) {
-            slug
-            userName
-            subscrData
-            subscrStatus
-            config {
-                userLayout
-            }
-        }
-    }
-`;
+
 const GET_SESSION = gql`
-    query sessionGet {
-        sessionGet {
+    query userGetSession($newslineSlug: String) {
+        userGetSession(newslineSlug: $newslineSlug) {
             options {
                 loud
                 thick
@@ -74,17 +66,34 @@ const GET_SESSION = gql`
                 band
             }
             state
+            user {
+                config
+                slug
+                userName
+                subscrStatus
+                avatar
+            }
         }
     }
 `;
-const SAVE_USER_LAYOUT = gql`
-    mutation userSaveUserLayout($userLayout: String) {
-        userSaveUserLayout(userLayout: $userLayout)
+const SAVE_USER_CONFIG = gql`
+    mutation userSaveUserConfig($config: String) {
+        userSaveUserConfig(config: $config)
     }
 `;
-const SAVE_SESSION = gql`
-    mutation sessionSave($session: String) {
-        sessionSave(session: $session)
+const SAVE_SESSION_OPTIONS = gql`
+    mutation sessionSaveOptions($options: String) {
+        sessionSaveOptions(options: $options)
+    }
+`;
+const SAVE_SESSION_STATE = gql`
+    mutation sessionSaveState($state: String) {
+        sessionSaveState(state: $state)
+    }
+`;
+const USER_LOGOUT = gql`
+    mutation userLogout {
+        userLogout
     }
 `;
 
@@ -105,10 +114,13 @@ const PageTitle = styled.div`
     font-size: 5rem;
 `;
 const PageWrap = styled.div`
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+    & .backdrop {
+        opacity: 0.2;
+    }
+    opacity: 0.7;
+    background-color: #000;
 `;
+
 const QwiketViewWrap = styled.div`
     width: 20%;
 `;
@@ -117,6 +129,7 @@ const Channel = ({ qparams, setThemeDark, setMeta, dark, meta, width }) => {
     const [dimensions, setDimensions] = React.useState({
         width: 0,
     });
+    const [isLoggingIn, setIsLoggingIn] = React.useState(0);
     let { channel: newslineSlug } = qparams;
     const { error: channelError, data: channel } = useQuery(GET_CHANNEL, {
         variables: { ns: newslineSlug },
@@ -127,7 +140,10 @@ const Channel = ({ qparams, setThemeDark, setMeta, dark, meta, width }) => {
     });
     React.useEffect(() => {
         let handleResize = debounce(() => {
-            if (window && dimensions.width != window.innderWidth)
+            if (
+                typeof window != "undefined" &&
+                dimensions.width != window.innderWidth
+            )
                 setDimensions({
                     width: window.innerWidth,
                 });
@@ -135,16 +151,7 @@ const Channel = ({ qparams, setThemeDark, setMeta, dark, meta, width }) => {
 
         window.addEventListener("resize", handleResize);
     });
-    const { error: userError, data: user, refetch: refetchUser } = useQuery(
-        GET_USER,
-        {
-            variables: { ns: newslineSlug },
-            notifyOnNetworkStatusChange: true,
-            onCompleted: data => {
-                console.log("completed GET_USERL", data);
-            },
-        }
-    );
+
     const {
         error: sessionError,
         data: session,
@@ -152,80 +159,213 @@ const Channel = ({ qparams, setThemeDark, setMeta, dark, meta, width }) => {
     } = useQuery(GET_SESSION, {
         notifyOnNetworkStatusChange: true,
         onCompleted: data => {
-            let { options } = data.sessionGet;
-            if (options.dark != dark) setThemeDark({ dark: options.dark });
-            /*console.log(
-                "=============>completed GET_SESSION_OPTIONS",
+            let session = data.userGetSession;
+            if (session && session.options && session.options.dark != dark)
+                setThemeDark({ dark: session.options.dark });
+            console.log("=============>completed GET_SESSIONS", {
+                dark,
                 data,
-                options
-            );*/
+                session,
+            });
         },
+        variables: { newslineSlug },
     });
-    const [saveUserLayout, { error: saveUserLayoutError }] = useMutation(
-        SAVE_USER_LAYOUT,
+    const [userLogout, { error: userLogoutError }] = useMutation(USER_LOGOUT, {
+        onCompleted: data => {
+            //  refetchUser();
+            // console.log("saveUserConfig completed");
+        },
+        refetchQueries: [{ query: GET_SESSION, variables: { newslineSlug } }],
+    });
+    const [saveUserConfig, { error: saveUserConfigError }] = useMutation(
+        SAVE_USER_CONFIG,
         {
             onCompleted: data => {
-                refetchUser();
-                console.log("saveUserLayout completed");
+                //  refetchUser();
+                // console.log("saveUserConfig completed");
             },
+            refetchQueries: [
+                { query: GET_SESSION, variables: { newslineSlug } },
+            ],
         }
     );
-    const [saveSession, { error: saveSessionError }] = useMutation(
-        SAVE_SESSION,
+    const [saveSessionOptions, { error: saveSessionOptionError }] = useMutation(
+        SAVE_SESSION_OPTIONS,
         {
-            onCompleted: data => {
-                refetchSession();
-                console.log("saveSession completed");
-            },
+            refetchQueries: [
+                { query: GET_SESSION, variables: { newslineSlug } },
+            ],
         }
     );
-    if (session && session.state) session.state = JSON.parse(session.state);
-
-    const updateSessionOption = update => {
-        let sessionRoot = session.sessionGet;
-        console.log("updateSessionOption", sessionRoot);
-        sessionRoot.options = { ...sessionRoot.options, ...update };
-        let sessionStr = JSON.stringify(sessionRoot);
-        saveSession({
-            variables: {
-                session: sessionStr,
-            },
-        });
-    };
-    const updateSessionState = update => {
-        session.state = session.state.merge(update);
-        let sessionStr = JSON.stringify(session);
-        saveSession({
-            variables: {
-                session: sessionStr,
-            },
-        });
-    };
+    const [saveSessionState, { error: saveSessionSaveError }] = useMutation(
+        SAVE_SESSION_STATE,
+        {
+            refetchQueries: [
+                { query: GET_SESSION, variables: { newslineSlug } },
+            ],
+        }
+    );
 
     const qstate = {
-        session: session?.sessionGet,
+        session: session?.userGetSession,
         channel: channel
             ? channel.storeGetChannel
             : { channelSlug: newslineSlug, newslineSlug },
-        user: user?.storeGetUser,
-
-        actions: {
-            saveUserLayout,
-            saveSession,
-            updateSessionOption,
-            updateSessionState,
-            setThemeDark,
-        },
+        user: session?.userGetSession.user,
     };
+    /// console.log("qstate1:", qstate);
+    if (qstate.session && typeof qstate.session.state === "string")
+        qstate.session.state = JSON.parse(qstate.session.state);
+    if (qstate.user) {
+        console.log("qstate.user:", qstate.user);
+    }
+    if (
+        qstate.user &&
+        qstate.user.config &&
+        typeof qstate.user.config === "string"
+    ) {
+        console.log("parsing config", qstate.user.config);
+        qstate.user.config = JSON.parse(qstate.user.config);
+    }
+    if (
+        qstate.channel &&
+        qstate.channel.config &&
+        typeof qstate.channel.config.layout === "string"
+    ) {
+        qstate.channel.config.layout = JSON.parse(qstate.channel.config.layout);
+    }
+    if (
+        qstate.channel &&
+        qstate.channel.config &&
+        typeof qstate.channel.config.definedTags === "string"
+    ) {
+        qstate.channel.config.definedTags = JSON.parse(
+            qstate.channel.config.definedTags
+        );
+    }
+    if (
+        qstate.channel &&
+        qstate.channel.config &&
+        typeof qstate.channel.config.newslines === "string"
+    ) {
+        qstate.channel.config.newslines = JSON.parse(
+            qstate.channel.config.newslines
+        );
+    }
+    if (
+        qstate.channel &&
+        qstate.channel.config &&
+        typeof qstate.channel.config.selectors === "string"
+    ) {
+        qstate.channel.config.selectors = JSON.parse(
+            qstate.channel.config.selectors
+        );
+    }
+    console.log("qstate2:", qstate);
+    const updateSessionOption = update => {
+        let sessionRoot = qstate.session;
+        //  console.log("dark: updateSessionOption", sessionRoot);
+        sessionRoot.options = { ...sessionRoot.options, ...update };
+        let optionsStr = JSON.stringify(sessionRoot.options);
+        qstate.session.options = sessionRoot.options;
+        saveSessionOptions({
+            variables: {
+                options: optionsStr,
+            },
+        });
+        console.log("dark: updateSessionOption", {
+            dark,
+            newDark: sessionRoot.options.dark,
+            sessionRoot,
+            setThemeDark,
+        });
+        if (sessionRoot.options.dark != dark)
+            setThemeDark(sessionRoot.options.dark);
+    };
+    const updateSessionState = async updateState => {
+        let newState = update(qstate.state || {}, updateState);
+        let stateStr = JSON.stringify(newState);
+        console.log(
+            "!!!!!!!!!!!!!!!!!updateSessionState",
+            updateState,
+            stateStr
+        );
+        await saveSessionState({
+            variables: {
+                state: stateStr,
+            },
+        });
+    };
+    const updateUserConfig = updateUserConfig => {
+        let newConfig = update(qstate.user.config || {}, updateUserConfig);
+        let configStr = JSON.stringify(newConfig);
+        saveUserConfig({
+            variables: {
+                config: configStr,
+            },
+        });
+    };
+
+    qstate.actions = {
+        updateUserConfig,
+        updateSessionOption,
+        updateSessionState,
+        setThemeDark,
+        setIsLoggingIn,
+        userLogout,
+    };
+
     // setTimeout(async () => await setMeta({ title: "Qwiket" }), 0);
     // console.log("qparams:", qparams);
     width =
         typeof window !== "undefined" && window.innerWidth
             ? window.innerWidth
             : width;
-    // console.log("WIDTH===>", width);
+    /* console.log("WIDTH1===>", {
+        innerWidth: window?.innerWidth,
+        width,
+        isLoggingIn,
+        typeof: window !== "undefined",
+    });*/
+    width = u.getLayoutWidth({ width });
+    /* console.log("WIDTH===>", {
+        innerWidth: window?.innerWidth,
+        width,
+        isLoggingIn,
+        typeof: window !== "undefined",
+    }); */
+    /*  if (
+        qstate &&
+        qstate.session &&
+        qstate.session.state &&
+        qstate.session.state.loginRedirect
+    ) {
+        qstate.actions.updateUserConfig({
+            logginIn: { $set: 0 },
+            loginRedirect: {
+                $set: "",
+            },
+        });
+
+        window.location = qstate.session.state.loginRedirect;
+        <div>Redirecting...</div>;
+    }
+    */
+    /* if (qstate.session && qstate.session.options.dark != dark) {
+        console.log("setThemeDark", qstate.session.options.dark);
+        //setThemeDark(qstate.session.options.dark);
+    }*/
     return (
         <ResponsiveContext.Provider value={{ width }}>
+            <PageWrap>
+                <Backdrop
+                    className={"backdrop"}
+                    open={isLoggingIn == 1 ? true : false}
+                    // onClick={handleClose}
+                >
+                    <CircularProgress color="inherit" />
+                </Backdrop>
+            </PageWrap>
             <Layout qparams={qparams} qstate={qstate}>
                 <LayoutView width={width} />
             </Layout>

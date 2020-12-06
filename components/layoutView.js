@@ -6,6 +6,7 @@ import Header from "./header";
 import { ColHeader } from "./colHeader";
 import { useMediaQuery } from "react-responsive";
 import Qwikets from "./columns/qwikets";
+import { getColumnsMap } from "../lib/layout";
 let HotlistRow = React.memo(({ layres, qparams, loud, theme, channel }) => {
     // return <div>HOTLIST {spaces}</div>
     let spaces = layres.spaces;
@@ -60,11 +61,11 @@ let Column = React.memo(
         pageType,
         res,
         density,
-        updateUserLayout,
+        updateUserConfig,
         userLayout,
         chanConfig,
     }) => {
-        console.log("render Column", { pageType, colIndex });
+        // console.log("render Column", { pageType, colIndex });
         // if (!qparams && Root.qparams) qparams = Root.qparams;
         // console.log(`COLUMN:${column.selector}`, { qparams, column, colIndex, selectors, mscSelectors, density, res })
         let tag = qparams.tag || qparams.shortname;
@@ -76,7 +77,7 @@ let Column = React.memo(
             width: 100%;
         `;
         let type = column.type;
-        let selector = column.selector;
+        let selector = column.selector || "";
         let msc = column.msc
             ? column.msc
             : pageType == "newsline"
@@ -84,7 +85,7 @@ let Column = React.memo(
             : "feed";
         // console.log("COLUMN LAYOUT NUMBER", layoutNumber)
         const listRenderer = ({ rows }) => {
-            console.log("render listRenderer", { type, selector });
+            // console.log("render listRenderer", { type, selector });
             return (
                 <InnerStyledColumn
                     data-id="inner-styled-column"
@@ -94,14 +95,14 @@ let Column = React.memo(
             );
         };
         switch (selector) {
-            case "twitter": {
+            case "twitter1": {
                 /* return (
                     <StyledColumn data-id="styled-column">
                         <ColHeader
                             chanConfig={chanConfig}
                             qparams={qparams}
                             colType={type}
-                            updateUserLayout={updateUserLayout}
+                            updateUserConfig={updateUserConfig}
                             userLayout={userLayout}
                             layoutNumber={layoutNumber}
                             selector={selector}
@@ -193,7 +194,7 @@ let Column = React.memo(
                                     chanConfig={chanConfig}
                                     qparams={qparams}
                                     colType={type}
-                                    updateUserLayout={updateUserLayout}
+                                    updateUserConfig={updateUserConfig}
                                     userLayout={userLayout}
                                     layoutNumber={layoutNumber}
                                     selector={selector}
@@ -215,7 +216,7 @@ let Column = React.memo(
                                     chanConfig={chanConfig}
                                     qparams={qparams}
                                     colType={type}
-                                    updateUserLayout={updateUserLayout}
+                                    updateUserConfig={updateUserConfig}
                                     userLayout={userLayout}
                                     layoutNumber={layoutNumber}
                                     isMsc={1}
@@ -280,7 +281,7 @@ let Column = React.memo(
                             chanConfig={chanConfig}
                             qparams={qparams}
                             colType={type}
-                            updateUserLayout={updateUserLayout}
+                            updateUserConfig={updateUserConfig}
                             userLayout={userLayout}
                             layoutNumber={layoutNumber}
                             selector={selector}
@@ -364,8 +365,10 @@ const LayoutView = ({
     let hpads = layout.hpads;
     let { channel, user, session, actions } = qstate;
     let chanConfig = channel?.config;
+    let userConfig = user?.config;
+    // console.log("chanConfig:", chanConfig);
     let { dark, cover: hot, loud } = session ? session.options : {};
-    console.log("render layoutview 111");
+    console.log("render layoutview ", { width, density, userConfig, layout });
     const PageWrap = styled.div`
         display: flex;
         flex-direction: column;
@@ -414,7 +417,7 @@ const LayoutView = ({
             <Grid>
                 <PageWrap>
                     <Header
-                        // width={width}
+                        width={width}
                         pageType={pageType}
                         layout={layout}
                         density={density}
@@ -426,8 +429,8 @@ const LayoutView = ({
                         layout={layout}
                         selectors={selectors}
                         density={density}
-                        // updateUserLayout={actions.updateUserLayout}
-                        userLayout={user?.userLayout}
+                        updateUserConfig={actions.updateUserConfig}
+                        userLayout={userConfig?.userLayout}
                         channel={channel}
                         width={width}
                         hot={hot}
@@ -484,9 +487,9 @@ let LayoutRes = React.memo(
         let layres = layout[res];
         //  console.log("LAYRES", res, layres);
         let columns = layres ? layres.columns : [];
-        // console.log({ columns });
+        console.log({ columns });
         let cols = columns.map((c, i) => {
-            // console.log("column", res, c)
+            console.log("column", res, c);
             let type = c.type;
             let s = selectors[type];
             let msc = selectors["msc"];
@@ -559,13 +562,50 @@ class InnerLayoutView extends React.Component {
         return widthChanged || layoutChanged || selChanged;
     }
     render() {
-        let { layout, width, ...other } = this.props;
-        console.log(" RENDER LAYOUTVIEW:", { width });
+        let { layout, width, density, ...other } = this.props;
         let layoutView = layout.layoutView;
+        //   console.log("init layoutVIew", width, density);
+        if (!layoutView.w900) return <div />;
+        if (!layoutView.w900) {
+            layoutView.w900 = { singleWidth: "25%", spaces: 4 };
+        }
+        if (!layoutView.w1200) {
+            layoutView.w1200 = { singleWidth: "25%", spaces: 4 };
+        }
+        if (!layoutView.w1800) {
+            layoutView.w1800 = { singleWidth: "25%", spaces: 4 };
+        }
+        if (!layoutView.w2100) {
+            layoutView.w2100 = { singleWidth: "25%", spaces: 4 };
+        }
         let layoutNumber = layout.layoutNumber;
+        let res = `w${width}`;
+        let totalWidth = 1;
+        if (res != "w000") {
+            totalWidth = getColumnsMap()[res][density];
+        }
+
+        console.log(" RENDER LAYOUTVIEW:", {
+            width,
+            totalWidth,
+            colMap: getColumnsMap()["w900"][density].toFixed(2),
+            perc: (
+                (100 * layoutView.w1200.spaces) /
+                getColumnsMap()["w1200"][density]
+            ).toFixed(2),
+            spaces: layoutView.w1200.spaces,
+            density,
+            layoutNumber,
+            layoutView,
+            percentWidhth:
+                layoutView.w1200.singleWidth.split("%")[0] *
+                layoutView.w1200.spaces,
+        });
+
         // let columns = layout.columns;
         // let defaultWidth = session.get("defaultWidth");
         //  console.log("defaultWidth:", +defaultWidth, +session.get("width"))
+
         let W000 = styled.div`
             //  display:none;
             width: 100%;
@@ -575,27 +615,40 @@ class InnerLayoutView extends React.Component {
         `;
         let W900 = styled.div`
             //  display:none;
-            width: 100%;
+            width: ${(
+                (100 * layoutView.w900.spaces) /
+                getColumnsMap()["w900"][density]
+            ).toFixed(2)}%;
             @media only screen and (min-width: 900px) and (max-width: 1199px) {
                 display: flex;
             }
         `;
         let W1200 = styled.div`
             // display:none;
-            width: 100%;
+            // margin-top: 4px;
+            width: ${(
+                (100 * layoutView.w1200.spaces) /
+                getColumnsMap()["w1200"][density]
+            ).toFixed(2)}%;
             @media only screen and (min-width: 1200px) and (max-width: 1799px) {
                 display: flex;
             }
         `;
         let W1800 = styled.div`
-            width: 100%;
+            width: ${(
+                (100 * layoutView.w1800.spaces) /
+                getColumnsMap()["w900"][density]
+            ).toFixed(2)}%;
             //  display:none;
             @media only screen and (min-width: 1800px) and (max-width: 2099px) {
                 display: flex;
             }
         `;
         let W2100 = styled.div`
-            width: 100%;
+            width: ${(
+                (100 * layoutView.w2100.spaces) /
+                getColumnsMap()["w2100"][density]
+            ).toFixed(2)}%;
             // display:none;
             @media only screen and (min-width: 2100px) {
                 display: flex;
@@ -603,6 +656,8 @@ class InnerLayoutView extends React.Component {
         `;
         const OuterWrapper = styled.div`
             width: 100%;
+            display: flex;
+            justify-content: center;
         `;
         // console.log("LAYOUTVIEW ", { width })
         return (
@@ -612,6 +667,7 @@ class InnerLayoutView extends React.Component {
                         <LayoutRes
                             layout={layoutView}
                             layoutNumber={layoutNumber}
+                            density={density}
                             {...other}
                             res="w900"
                         />
@@ -622,16 +678,18 @@ class InnerLayoutView extends React.Component {
                         <LayoutRes
                             layout={layoutView}
                             layoutNumber={layoutNumber}
+                            density={density}
                             {...other}
                             res="w900"
                         />
                     </W900>
                 </Q900>
-                <Q1200>
-                    <W1200>
+                <Q1200 id="q1200">
+                    <W1200 id="w1200">
                         <LayoutRes
                             layout={layoutView}
                             layoutNumber={layoutNumber}
+                            density={density}
                             {...other}
                             res="w1200"
                         />
@@ -642,6 +700,7 @@ class InnerLayoutView extends React.Component {
                         <LayoutRes
                             layout={layoutView}
                             layoutNumber={layoutNumber}
+                            density={density}
                             {...other}
                             res="w1800"
                         />
@@ -652,6 +711,7 @@ class InnerLayoutView extends React.Component {
                         <LayoutRes
                             layout={layoutView}
                             layoutNumber={layoutNumber}
+                            density={density}
                             {...other}
                             res="w2100"
                         />
