@@ -1,0 +1,1 @@
+docker-compose run --rm --service-ports qwiket-web -d -e QAPI=192.168.0.12
