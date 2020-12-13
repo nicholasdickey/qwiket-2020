@@ -12,7 +12,8 @@ services:
     volumes:
       - '.:/home/web'
     working_dir: /home/web
-   
+    environment:
+      -  QAPI=${QAPI}
     env_file:
       - /home/nick/runtimes/qwiket-web-dev-x1/.env
     restart: unless-stopped 
