@@ -36,7 +36,7 @@ export let Context = ({ qparams, context, renderer, listRenderer }) => {
         let topic = context.get("topic");
         if (topic) tag = topic.get("cat") || topic.get("category");
     }
-    console.log("Context RENDER", { tag, qparams });
+    //console.log("Context RENDER", { tag, qparams });
     const StyledColumn = styled.div`
         width: 100%;
     `;
@@ -83,7 +83,7 @@ let Topic = ({ theme, qparams, channel, context, session, actions }) => {
         console.log("NO TOPIC");
         return <div />;
     }
-    console.log("RENDER TOPIC", qparams);
+    //  console.log("RENDER TOPIC", qparams);
 
     let details = channel.get("channelDetails");
     let forum = details.get("forum");

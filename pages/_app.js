@@ -26,13 +26,13 @@ export default class App extends NextApp {
         const { Component, pageProps } = this.props;
         const meta = this.state.meta;
         pageProps.setThemeDark = dark => {
-            console.log("render setThemeDark", { dark, o: this });
+            //console.log("render setThemeDark", { dark, o: this });
             if (this.state.dark != dark) this.setState({ dark: +dark });
         };
         pageProps.setMeta = async meta => this.setState({ meta });
         pageProps.dark = this.state.dark;
         pageProps.meta = this.setState.meta;
-        console.log("app setThiemeDark:", pageProps);
+        //  console.log("app setThiemeDark:", pageProps);
         let muiTheme = theme({ dark: this.state.dark });
         return (
             <React.Fragment>

@@ -103,7 +103,7 @@ const QwiketsColumn = ({ qparams, qstate, selector, queueid }) => {
     const [pageState, setPage] = React.useState(0);
     const [lastPage, setLastPage] = React.useState(false);
     const [qid, setQid] = React.useState(0);
-    console.log("RENDER QwiketsColumn ", selector, queueid);
+    //console.log("RENDER QwiketsColumn ", selector, queueid);
     let page = pageState ? pageState : 0;
 
     let silo = 3;

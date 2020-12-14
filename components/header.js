@@ -132,11 +132,11 @@ const DatelineBand = ({
     const muiTheme = useTheme();
     const backgroundColor = muiTheme.palette.background.default;
     const color = muiTheme.palette.text.primary;
-    console.log("DATELINE BAND", { user });
+    //  console.log("DATELINE BAND", { user });
     const linkColor = muiTheme.palette.linkColor;
     let subscr_status = +user?.subscr_status;
     if (!subscr_status) subscr_status = 0;
-    console.log({ subscr_status });
+    //  console.log({ subscr_status });
     let starColor = green[700];
     switch (subscr_status) {
         case 1:
@@ -224,13 +224,13 @@ const DatelineBand = ({
     let userLayout = user?.config?.userLayout;
 
     let isLoggedIn = name ? true : false;
-    console.log("user userLayout", {
+    /* console.log("user userLayout", {
         user,
         name,
         avatar,
         userLayout,
         isLoggedIn,
-    });
+    }); */
 
     let LayoutSwitchWrap = styled.div`
         display: none;
@@ -626,7 +626,7 @@ let Header = ({ pageType, layout, qparams, qstate, ...other }) => {
         newslineLogo,
         config,
     } = channel ? channel : {};
-    console.log("RENDER HEADER actions", actions);
+    //console.log("RENDER HEADER actions", actions);
     //  console.log({ newsline: newsline.toJS(), session: session.toJS() })
     const StyledHeader = styled.div`
         width: 100%;

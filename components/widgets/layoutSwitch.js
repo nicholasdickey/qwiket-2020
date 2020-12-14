@@ -293,7 +293,7 @@ let LayoutEditor = ({
     let open = openSpec.open;
     //  if (typeof channelConfig === "string")
     //     channelConfig = JSON.parse(channelConfig);
-    console.log("RENDER", { layoutNumber, channelConfig, userLayout });
+    // console.log("RENDER", { layoutNumber, channelConfig, userLayout });
 
     let densityOptions = ["Normal", "Thick", "Dense"];
     let densityValues = ["normal", "thick", "dense"];
@@ -384,7 +384,7 @@ let LayoutEditor = ({
     );
 
     let layout = userLayout.layout;
-    console.log({ userLayout });
+    //console.log({ userLayout });
     if (!layout) {
         userLayout.layout = {};
         console.log("setUserLayout");
@@ -395,7 +395,7 @@ let LayoutEditor = ({
     if (!pageTypeLayout) {
         //first try to get the default from channel
         pageTypeLayout = channelConfig.layout[pageType];
-        console.log({ pageTypeLayout });
+        // console.log({ pageTypeLayout });
         if (!pageTypeLayout) pageTypeLayout = {};
         userLayout.layout[pageType] = pageTypeLayout;
         setUserLayout(userLayout);
@@ -403,13 +403,13 @@ let LayoutEditor = ({
     let pageLayout = pageTypeLayout[`l${layoutNumber}`];
     if (!pageLayout) {
         let chanTypeLayout = channelConfig.layout[pageType];
-        console.log({ chanTypeLayout });
+        // console.log({ chanTypeLayout });
         if (chanTypeLayout) {
             let chanPageLayout = chanTypeLayout[`l${layoutNumber}`];
-            console.log({
+            /* console.log({
                 page: `l${layoutNumber}`,
                 chanPageLayout: chanPageLayout ? chanPageLayout : "",
-            });
+            });*/
 
             if (chanPageLayout) {
                 pageLayout = chanPageLayout;
@@ -420,21 +420,21 @@ let LayoutEditor = ({
         }
         pageTypeLayout[`l${layoutNumber}`] = pageLayout;
         userLayout.layout[pageType] = pageTypeLayout;
-        console.log("setUserLayout2");
+        //  console.log("setUserLayout2");
         setUserLayout(userLayout);
     }
     let resLayout = pageLayout[res];
     if (!resLayout) {
         let chanTypeLayout = channelConfig.layout[pageType];
-        console.log({ chanTypeLayout: chanTypeLayout });
+        //  console.log({ chanTypeLayout: chanTypeLayout });
         if (chanTypeLayout) {
             let chanPageLayout = chanTypeLayout[`l${layoutNumber}`];
             if (chanPageLayout) {
                 let chanResLayout = chanPageLayout[res];
-                console.log({
+                /*  console.log({
                     res,
                     chanResLayout: chanResLayout ? chanResLayout : "",
-                });
+                }); */
                 if (chanResLayout) {
                     resLayout = chanResLayout;
                 }
@@ -446,22 +446,22 @@ let LayoutEditor = ({
         pageLayout[res] = resLayout;
         pageTypeLayout[`l${layoutNumber}`] = pageLayout;
         userLayout.layout[pageType] = pageTypeLayout;
-        console.log("setUserLayout3");
+        //  console.log("setUserLayout3");
         setUserLayout(userLayout);
     }
     let densityLayout = resLayout[density];
     if (!densityLayout) {
         let chanTypeLayout = channelConfig.layout[pageType];
-        console.log({ layoutNumber, chanTypeLayout });
+        // console.log({ layoutNumber, chanTypeLayout });
         if (chanTypeLayout) {
             let chanPageLayout = chanTypeLayout[`l${layoutNumber}`];
-            console.log({ chanPageLayout });
+            //   console.log({ chanPageLayout });
             if (chanPageLayout) {
                 let chanResLayout = chanPageLayout[res];
-                console.log({ chanResLayout });
+                // console.log({ chanResLayout });
                 if (chanResLayout) {
                     let chanDensityLayout = chanResLayout[density];
-                    console.log({ density, chanDensityLayout });
+                    //  console.log({ density, chanDensityLayout });
                     if (chanDensityLayout) {
                         densityLayout = chanDensityLayout;
                     }
@@ -475,7 +475,7 @@ let LayoutEditor = ({
         pageLayout[res] = resLayout;
         pageTypeLayout[`l${layoutNumber}`] = pageLayout;
         userLayout.layout[pageType] = pageTypeLayout;
-        console.log("setUserLayout4");
+        // console.log("setUserLayout4");
         setUserLayout(userLayout);
     }
     let totalWidth = 1;
@@ -1083,7 +1083,7 @@ export let LayoutSwitch = ({
 
     const [open, setOpen] = React.useState({ open: false, newPage: false });
     const matches = useMediaQuery("(min-width:900px)");
-    console.log("RENDER LayoutSwitch", open, actions);
+    //console.log("RENDER LayoutSwitch", open, actions);
     //  console.log({ matches })
     //if (!matches) return <div />;
 

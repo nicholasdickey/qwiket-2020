@@ -368,7 +368,7 @@ const LayoutView = ({
     let userConfig = user?.config;
     // console.log("chanConfig:", chanConfig);
     let { dark, cover: hot, loud } = session ? session.options : {};
-    console.log("render layoutview ", { width, density, userConfig, layout });
+    //console.log("render layoutview ", { width, density, userConfig, layout });
     const PageWrap = styled.div`
         display: flex;
         flex-direction: column;
@@ -585,7 +585,7 @@ class InnerLayoutView extends React.Component {
             totalWidth = getColumnsMap()[res][density];
         }
 
-        console.log(" RENDER LAYOUTVIEW:", {
+        /*console.log(" RENDER LAYOUTVIEW:", {
             width,
             totalWidth,
             colMap: getColumnsMap()["w900"][density].toFixed(2),
@@ -600,7 +600,7 @@ class InnerLayoutView extends React.Component {
             percentWidhth:
                 layoutView.w1200.singleWidth.split("%")[0] *
                 layoutView.w1200.spaces,
-        });
+        }); */
 
         // let columns = layout.columns;
         // let defaultWidth = session.get("defaultWidth");

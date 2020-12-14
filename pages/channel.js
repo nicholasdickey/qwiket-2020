@@ -135,7 +135,7 @@ const Channel = ({ qparams, setThemeDark, setMeta, dark, meta, width }) => {
         variables: { ns: newslineSlug },
         notifyOnNetworkStatusChange: true,
         onCompleted: data => {
-            console.log("completed GET_CHANNEL", data);
+            // console.log("completed GET_CHANNEL", data);
         },
     });
     React.useEffect(() => {
@@ -162,11 +162,11 @@ const Channel = ({ qparams, setThemeDark, setMeta, dark, meta, width }) => {
             let session = data.userGetSession;
             if (session && session.options && session.options.dark != dark)
                 setThemeDark({ dark: session.options.dark });
-            console.log("=============>completed GET_SESSIONS", {
+            /* console.log("=============>completed GET_SESSIONS", {
                 dark,
                 data,
                 session,
-            });
+            });*/
         },
         variables: { newslineSlug },
     });
@@ -217,14 +217,14 @@ const Channel = ({ qparams, setThemeDark, setMeta, dark, meta, width }) => {
     if (qstate.session && typeof qstate.session.state === "string")
         qstate.session.state = JSON.parse(qstate.session.state);
     if (qstate.user) {
-        console.log("qstate.user:", qstate.user);
+        // console.log("qstate.user:", qstate.user);
     }
     if (
         qstate.user &&
         qstate.user.config &&
         typeof qstate.user.config === "string"
     ) {
-        console.log("parsing config", qstate.user.config);
+        // console.log("parsing config", qstate.user.config);
         qstate.user.config = JSON.parse(qstate.user.config);
     }
     if (
@@ -261,7 +261,7 @@ const Channel = ({ qparams, setThemeDark, setMeta, dark, meta, width }) => {
             qstate.channel.config.selectors
         );
     }
-    console.log("qstate2:", qstate);
+    // console.log("qstate2:", qstate);
     const updateSessionOption = update => {
         let sessionRoot = qstate.session;
         //  console.log("dark: updateSessionOption", sessionRoot);
@@ -273,23 +273,23 @@ const Channel = ({ qparams, setThemeDark, setMeta, dark, meta, width }) => {
                 options: optionsStr,
             },
         });
-        console.log("dark: updateSessionOption", {
+        /*  console.log("dark: updateSessionOption", {
             dark,
             newDark: sessionRoot.options.dark,
             sessionRoot,
             setThemeDark,
-        });
+        });*/
         if (sessionRoot.options.dark != dark)
             setThemeDark(sessionRoot.options.dark);
     };
     const updateSessionState = async updateState => {
         let newState = update(qstate.state || {}, updateState);
         let stateStr = JSON.stringify(newState);
-        console.log(
+        /* console.log(
             "!!!!!!!!!!!!!!!!!updateSessionState",
             updateState,
             stateStr
-        );
+        );*/
         await saveSessionState({
             variables: {
                 state: stateStr,
@@ -417,7 +417,7 @@ Channel.getInitialProps = ({
     let width = 600;
     if (req) {
         let ua = req.headers["user-agent"];
-        console.log({ ua });
+        // console.log({ ua });
         const bowser = Bowser.getParser(
             ua
                 ? ua
@@ -425,7 +425,7 @@ Channel.getInitialProps = ({
         );
 
         const platformType = bowser.getPlatformType();
-        console.log("USER AGENT", ua, { platformType });
+        //console.log("USER AGENT", ua, { platformType });
         switch (platformType) {
             case "tablet":
                 width = 900;
