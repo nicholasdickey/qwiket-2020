@@ -3,7 +3,7 @@
     "version": "0.1.0",
     "private": true,
     "scripts": {
-        "dev": "NODE_ENV=development nodemon --inspect=0.0.0.0  server.js",
+        "dev": "NODE_ENV=development nodemon --inspect 0.0.0.0 server.js",
         "build": "next build",
         "start": "next start"
     },
