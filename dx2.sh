@@ -1,0 +1,1 @@
+docker-compose -f dx2.yml run --rm --service-ports qwiket-web -d

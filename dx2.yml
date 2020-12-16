@@ -1,0 +1,20 @@
+version: "3.2"
+services: 
+  qwiket-web: 
+    image: "hudsonwilde/qwiket-web-dev"
+    ports: 
+      - 3000:3000 
+      - 9230:9229
+    build:
+      context: .
+      dockerfile: dev.Dockerfile
+    container_name: qwiket-web-dev  
+    volumes:
+      - '.:/home/web'
+    working_dir: /home/web
+    
+    env_file:
+      - /home/nick/runtimes/qwiket-web-dev-x2/.env
+    restart: unless-stopped 
+
+    

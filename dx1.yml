@@ -3,7 +3,7 @@ services:
   qwiket-web: 
     image: "hudsonwilde/qwiket-web-dev"
     ports: 
-      - 3200:3200 
+      - 3000:3000 
       - 9230:9229
     build:
       context: .
@@ -12,8 +12,7 @@ services:
     volumes:
       - '.:/home/web'
     working_dir: /home/web
-    environment:
-      -  QAPI=${QAPI}
+    
     env_file:
       - /home/nick/runtimes/qwiket-web-dev-x1/.env
     restart: unless-stopped 
