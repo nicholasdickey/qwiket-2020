@@ -14,7 +14,7 @@ services:
     working_dir: /home/web
     
     env_file:
-      - /home/nick/runtimes/qwiket-web-dev-x1/.env
+      - /home/nick/runtimes/qwiket-web/qwiket-web-dev-x1.env
     restart: unless-stopped 
 
     

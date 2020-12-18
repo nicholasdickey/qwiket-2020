@@ -1,0 +1,40 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {   "port":9229,
+            "type": "node",
+            "request": "attach",
+            "name": "qwiket-server: Attach to Node",
+            "address": "localhost",
+            "localRoot":"/home/nick/qwiket-server",
+            "remoteRoot": "/home/app",
+            "protocol":"inspector",
+            "restart":true
+        },
+          { "port":9230,
+            "type": "node",
+            "request": "attach",
+            "name": "qwiket-web: Attach to Node",
+            "address": "localhost",
+            "localRoot":"/home/nick/qwiket-web",
+            "remoteRoot": "/home/web",
+            "protocol":"inspector",
+            "restart":true,
+            "outFiles": [ "${workspaceFolder}/**/*.js" ],
+        },
+         {   "port": 9229,
+            "type": "docker",
+            "request": "launch",
+            "preLaunchTask":"docker-run: debug",
+            "name": "Docker: Launch",
+            "address": "localhost",
+            "localRoot":"/home/nick/qwiket-server",
+            "remoteRoot": "/home/app",
+            "protocol":"inspector",
+            "platform":"node"
+        }
+    ]
+}
