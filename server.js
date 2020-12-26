@@ -200,17 +200,22 @@ app.prepare()
             // let u = `http://dev.qwiket.com:8088/api?task=updateUserLayout&pxid=${pxid}&host=${host}&ip=${ip}&XDEBUG_SESSION_START=vscode`;
             console.log("GRAPH URL:", u);
             // console.log(chalk.red.bold("CHANNELL:"), channel, host)
-            let response = await fetch(u, {
-                // credentials: 'same-origin',
-                method: "POST",
-                credentials: "include",
-                headers: {
-                    Accept: "application/json",
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify(body),
-            });
-            sres = await response.text();
+            let sres;
+            try {
+                let response = await fetch(u, {
+                    // credentials: 'same-origin',
+                    method: "POST",
+                    credentials: "include",
+                    headers: {
+                        Accept: "application/json",
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify(body),
+                });
+                sres = await response.text();
+            } catch (x) {
+                console.log("server graphql call failed", u)
+            }
             //  console.log({ sres });
             res.end(sres);
         });
