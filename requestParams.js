@@ -8,7 +8,10 @@ function params(req) {
     ip = w ? w[w.length - 1] : ip;
     let host = req.headers.host;
     let sessionID = req.session.id; //sessionID;
-    let s = `sessionID=${sessionID}&host=${host}&xip=${ip}&ua=${ua}&xFF=${xFF}`;
+    let home = req.query.home;
+    let s = `home=${encodeURIComponent(
+        home
+    )}&sessionID=${sessionID}&host=${host}&xip=${ip}&ua=${ua}&xFF=${xFF}`;
     return s;
 }
 module.exports = params;

@@ -142,6 +142,7 @@ app.prepare()
             });
         });
         server.use("/disqus-callback", async(req, res) => {
+            console.log("disqus-callback query", req.query)
             var parts = req.url.split("?");
             var query = parts[1] || "";
 
