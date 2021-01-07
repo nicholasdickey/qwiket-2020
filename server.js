@@ -1,10 +1,10 @@
 // server.js
-require = require("esm")(module /*, options*/ );
+require = require("esm")(module /*, options*/);
 require("dotenv").config();
 const express = require("express");
 var crypto = require("crypto");
 
-var generate_key = function() {
+var generate_key = function () {
     // 16 bytes is likely to be more than enough,
     // but you may tweak it to your needs
     return crypto.randomBytes(16).toString("base64");
@@ -46,10 +46,10 @@ var optionsApi = {
         });
         res.end(
             "Something went wrong. And we are reporting a custom error message." +
-            err
+                err
         );
     },
-    pathRewrite: function(path, req) {
+    pathRewrite: function (path, req) {
         let newPath = path;
         newPath = newPath.replace(/robots.txt/g, "api?task=robots");
         newPath = newPath.replace(/sitemap.txt/, "api?task=sitemap2");
@@ -78,6 +78,7 @@ var optionsApi = {
     },
 };
 let apiProxy = createProxyMiddleware(optionsApi);
+
 app.prepare()
     .then(() => {
         const server = express();
@@ -135,14 +136,14 @@ app.prepare()
 
         let ar = ["/static*", "/_next*", "/_webpack*", "/__webpack_hmr*"];
         console.log("ar=", ar);
-        ar.forEach(function(path) {
+        ar.forEach(function (path) {
             console.log("adding next path:", path);
-            server.get(path, function(req, res) {
+            server.get(path, function (req, res) {
                 handle(req, res);
             });
         });
-        server.use("/disqus-callback", async(req, res) => {
-            console.log("disqus-callback query", req.query)
+        server.use("/disqus-callback", async (req, res) => {
+            console.log("disqus-callback query", req.query);
             var parts = req.url.split("?");
             var query = parts[1] || "";
 
@@ -166,7 +167,7 @@ app.prepare()
                 return res.status(500).json(json);
             }
         });
-        server.use("/disqus-login", async(req, res) => {
+        server.use("/disqus-login", async (req, res) => {
             let s = requestParams(req);
             let u = `${url}/disqus-login?${s}`;
             console.log("calling fetch", u);
@@ -187,7 +188,7 @@ app.prepare()
                 return res.status(500).json(json);
             }
         });
-        server.post("/graphql", async(req, res) => {
+        server.post("/graphql", async (req, res) => {
             let body = req.body;
             let sessionID = req.session.id;
             if (!sessionID) {
@@ -215,7 +216,7 @@ app.prepare()
                 });
                 sres = await response.text();
             } catch (x) {
-                console.log("server graphql call failed", u)
+                console.log("server graphql call failed", u);
             }
             //  console.log({ sres });
             res.end(sres);
@@ -239,7 +240,7 @@ app.prepare()
         server.listen(port, err => {
             if (err) throw err;
             console.log(`> Ready on http://localhost:${process.env.PORT}`);
-            console.log(process.env)
+            console.log(process.env);
         });
     })
     .catch(ex => {

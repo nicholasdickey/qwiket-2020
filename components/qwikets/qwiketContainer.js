@@ -50,7 +50,7 @@ class QwiketContainer extends Component {
             qid,
             theme,
         } = this.props;
-        // console.log("QwiketContainer render", id, qwiket.slug);
+        //  console.log("QwiketContainer render", id, qwiket.slug);
         let hasBorder = false;
         let borderColor;
         const now = (Date.now() / 1000) | 0;
@@ -69,7 +69,7 @@ class QwiketContainer extends Component {
         const Container = styled.div`
             position: relative;
             display: flex;
-            width: 98%;
+            width: 97%;
             flex-direction: column;
             align-items: center;
             justify-content: center;
@@ -77,6 +77,7 @@ class QwiketContainer extends Component {
             margin-right: 4px;
             margin-left: 4px;
             margin-top: 4px;
+            font-size: 1.1rem;
             overflow: hidden;
             border-bottom: ${hasBorder ? `solid thin ${borderColor}` : "none"};
             border-left: ${hasBorder ? `solid thin ${borderColor}` : "none"};
@@ -84,6 +85,9 @@ class QwiketContainer extends Component {
             border-right: ${hasBorder
                 ? `solid thin ${defaultBorderColor}`
                 : "none"};
+            & .html-body {
+                font-size: 1rem;
+            }
         `;
         //  console.log("RENTER QCont", { id });
         return (

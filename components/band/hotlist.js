@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { connect } from "react-redux";
+
 import Link from "next/link";
 
 import styled from "styled-components";
@@ -15,8 +15,8 @@ var Markdown = require("react-markdown");
 import GridList from "@material-ui/core/GridList";
 import GridListTile from "@material-ui/core/GridListTile";
 import GridListTileBar from "@material-ui/core/GridListTileBar";
-import { route } from "../qwiket-lib/lib/qwiketRouter";
-i; //mport u from "../qwiket-lib/lib/utils";
+import { route } from "../../lib/qwiketRouter";
+import u from "../../lib/utils";
 let RenderHotlist = React.memo(({ width, layoutView, channel, queue }) => {
     const StyledWrapper = styled.div`
         display: flex;
@@ -32,16 +32,17 @@ let RenderHotlist = React.memo(({ width, layoutView, channel, queue }) => {
 });
 
 export let HotItem = React.memo(
-    ({ width, item, loud, theme, wrapper, channel }) => {
+    ({ width, item, loud, dark, wrapper, channel }) => {
         // a.k.a context main panel
-        let title = item.get("title");
-        let image = item.get("image");
-        let site_name = item.get("site_name");
+        let title = item.title;
+        let image = item.image;
+        let site_name = item.site_name;
 
         let empty = "";
         let nextRoute = "context-channel-hub-tag-topic";
 
         let { qwiketid, hub, tag } = u.parseQwiketid(item);
+        //  console.log("!!!!______!!!!!", qwiketid, hub, tag);
         let routeParams = hub
             ? {
                   threadid: qwiketid,
@@ -90,6 +91,7 @@ export let HotItem = React.memo(
                 color: #fff;
                 font-size: 1.4rem !important;
                 margin-top: 2px;
+                text-decoration: none;
             }
 
             & .q-hl-title-bar {
@@ -98,7 +100,7 @@ export let HotItem = React.memo(
                 color: #fff !important;
                 background: ${loud
                     ? "linear-gradient(to top, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0.3) 70%, rgba(0,0,0,0) 100%)"
-                    : theme == 1
+                    : dark == 0
                     ? "#888"
                     : "#222"} !important;
             }
@@ -111,6 +113,9 @@ export let HotItem = React.memo(
             u {
                 list-style-type: none;
             }
+            a {
+                text-decoration: none !important;
+            }
             & .q-hl-color {
                 color: #fff !important;
                 text-overflow: ellipsis !important;
@@ -122,6 +127,7 @@ export let HotItem = React.memo(
                 line-height: 1.5rem;
                 font-weight: 400;
                 max-height: 58px !important;
+                text-decoration: none !important;
             }
             & .q-hl-site {
                 border-top: 1px solid white !important;
@@ -159,11 +165,11 @@ export let HotItem = React.memo(
 
         return (
             <StyledGridListTile
-                key={wrapper.key}
-                rowIndex={wrapper.rowIndex}
-                ref={wrapper.ref}
-                lastRow={wrapper.lastRow}
-                firstRow={wrapper.firstRow}
+                // key={wrapper.key}
+                // rowIndex={wrapper.rowIndex}
+                // ref={wrapper.ref}
+                // lastRow={wrapper.lastRow}
+                // firstRow={wrapper.firstRow}
                 // style={{backgroundColor:theme?'#222':'#222'}}
                 classes={{
                     root: "q-hl-tile-root",
@@ -235,7 +241,7 @@ export let Hotlist = React.memo(({ rows, spaces, loud }) => {
         }
     `;
     rows = rows.slice(0, spaces);
-    //  console.log("Hotlist render", { rows, spaces })
+    // console.log("Hotlist render", { rows, spaces });
     return (
         <StyledWrapper>
             {" "}

@@ -8,58 +8,7 @@ import { gql } from "apollo-boost";
 
 import QwiketContainer from "../qwikets/qwiketContainer";
 import u from "../../lib/utils";
-const QWIKET_QUERY = gql`
-    query qwiketQuery(
-        $search: String!
-        $silo: Int
-        $page: Int
-        $qid: Int
-        $sortBy: String
-        $environment: Int
-    ) {
-        qwiketQuery(
-            search: $search
-            silo: $silo
-            page: $page
-            qid: $qid
-            sortBy: $sortBy
-            environment: $environment
-        ) {
-            qid
-            total
-            qwikets {
-                slug
-                title
-                description
-                author
-                site_name
-                body
-                image
-                tags
-                type
-                reshare
-                published_time
-                shared_time
-                authorAvatar
-                subscr_status
-                threadTagImage
-                threadPublished_time
-                userRole
-                threadDescription
-                threadTag
-                threadImage
-                threadAuthor
-                threadSlug
-                threadTitle
-                threadTagName
-                threadUrl
-                children_summary
-                parent_summary
-                url
-            }
-        }
-    }
-`;
+import { QWIKET_QUERY } from "../../gql/queries";
 class Queue extends React.Component {
     componentDidMount = () => {
         //  console.log("Queue:componentDidMount");
@@ -79,7 +28,7 @@ class Queue extends React.Component {
     render = () => {
         let { queueid, qid, items, border, qparams, qstate } = this.props;
 
-        //  console.log("show items:", queueid, items);
+        // console.log("show items:", queueid);
         return (
             <div>
                 {items.map(p => (
@@ -106,7 +55,7 @@ const QwiketsColumn = ({ qparams, qstate, selector, queueid }) => {
     //console.log("RENDER QwiketsColumn ", selector, queueid);
     let page = pageState ? pageState : 0;
 
-    let silo = 3;
+    let silo = 5;
     let sortBy = "published_time";
     if (selector == "newsviews") sortBy = "shared_time";
     let border = selector == "feed" ? true : false;
@@ -119,10 +68,18 @@ const QwiketsColumn = ({ qparams, qstate, selector, queueid }) => {
     }
     if (selector.indexOf("$") == 0) search = selector.substr(1);
     const { error, data, fetchMore } = useQuery(QWIKET_QUERY, {
-        variables: { search, page, sortBy, silo, qid, environment: 0 },
+        variables: {
+            search,
+            page,
+            size: 10,
+            sortBy,
+            silo,
+            qid,
+            environment: 0,
+        },
         onCompleted: data => {
             if (!data) return;
-            // console.log("completed QWIKET_QUERY", queueid, page, data);
+            //console.log("completed QWIKET_QUERY", queueid, page, data);
             let nqid = +(data.qwiketQuery ? data.qwiketQuery.qid : 0);
             if (nqid != qid) setQid(nqid);
             //setItems(data.qwiketQuery.qwikets);
@@ -167,6 +124,7 @@ const QwiketsColumn = ({ qparams, qstate, selector, queueid }) => {
             variables: {
                 search,
                 page,
+                size: 10,
                 sortBy,
                 silo,
                 qid: page ? qid : 0,
@@ -253,6 +211,7 @@ const QwiketsColumn = ({ qparams, qstate, selector, queueid }) => {
         };
     });*/
     //  console.log({ items: items ? items : data?.qwiketQuery });
+    //console.log("RENDER QUEUE", queueid);
     return (
         <Queue
             qid={qid}

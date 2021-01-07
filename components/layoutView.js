@@ -7,48 +7,8 @@ import { ColHeader } from "./colHeader";
 import { useMediaQuery } from "react-responsive";
 import Qwikets from "./columns/qwikets";
 import { getColumnsMap } from "../lib/layout";
-let HotlistRow = React.memo(({ layres, qparams, loud, theme, channel }) => {
-    // return <div>HOTLIST {spaces}</div>
-    let spaces = layres.spaces;
-    let singleWidth = layres.singleWidth;
-    //console.log('HotlistRow', { singleWidth, spaces, layres, channel, qparams })
-    const listRenderer = ({ rows }) => {
-        //   console.log("render listRenderer", { type, selector })
-        /* return (
-            <Hotlist
-                spaces={spaces}
-                qparams={qparams}
-                loud={loud}
-                rows={rows}
-            />
-        ); ---*/
-    };
-    const renderer = ({ item, channel, wrapper }) => {
-        // console.log('HotItem renderer', { channel })
-        /*return (
-            <HotItem
-                wrapper={wrapper}
-                width={singleWidth}
-                item={item}
-                loud={loud}
-                theme={theme}
-                qparams={qparams}
-                channel={channel}
-            />
-        ); ---*/
-    };
-    //console.log("HotlistRow", { qparams })
-    /* return (
-        <Queue
-            tag={"hot"}
-            spaces={spaces}
-            renderer={renderer}
-            qparams={qparams}
-            listRenderer={listRenderer}
-        />
-    ); ---*/
-    return <div />;
-});
+import Band from "./band/band";
+
 let Column = React.memo(
     ({
         layoutNumber,
@@ -367,7 +327,7 @@ const LayoutView = ({
     let chanConfig = channel?.config;
     let userConfig = user?.config;
     // console.log("chanConfig:", chanConfig);
-    let { dark, cover: hot, loud } = session ? session.options : {};
+    let { dark, band, loud } = session ? session.options : {};
     //console.log("render layoutview ", { width, density, userConfig, layout });
     const PageWrap = styled.div`
         display: flex;
@@ -433,7 +393,7 @@ const LayoutView = ({
                         userLayout={userConfig?.userLayout}
                         channel={channel}
                         width={width}
-                        hot={hot}
+                        band={band}
                         loud={loud}
                         dark={dark}
                         pageType={pageType}
@@ -480,7 +440,7 @@ const LayoutView = ({
     );*/
 };
 let LayoutRes = React.memo(
-    ({ layoutNumber, layout, selectors, res, hot, density, ...other }) => {
+    ({ layoutNumber, layout, selectors, res, band, density, ...other }) => {
         // if (Root.qparams)
         //    qparams = Root.qparams;
 
@@ -518,7 +478,14 @@ let LayoutRes = React.memo(
         // console.log({ layres })
         return (
             <OuterWrap>
-                {hot ? <HotlistRow layres={layres} {...other} /> : null}
+                {band ? (
+                    <Band
+                        spaces={layres.spaces}
+                        singleWidth={layres.singleWidth}
+                        selector={"hot"}
+                        {...other}
+                    />
+                ) : null}
                 <View>{cols}</View>
             </OuterWrap>
         );
@@ -564,7 +531,7 @@ class InnerLayoutView extends React.Component {
     render() {
         let { layout, width, density, ...other } = this.props;
         let layoutView = layout.layoutView;
-        //   console.log("init layoutVIew", width, density);
+        console.log("init layoutVIew", width, density, other);
         if (!layoutView.w900) return <div />;
         if (!layoutView.w900) {
             layoutView.w900 = { singleWidth: "25%", spaces: 4 };

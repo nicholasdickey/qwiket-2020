@@ -261,7 +261,7 @@ const Channel = ({ qparams, setThemeDark, setMeta, dark, meta, width }) => {
             qstate.channel.config.selectors
         );
     }
-    // console.log("qstate2:", qstate);
+    console.log("qparams:", qparams, "qstate:", qstate);
     const updateSessionOption = update => {
         let sessionRoot = qstate.session;
         //  console.log("dark: updateSessionOption", sessionRoot);
