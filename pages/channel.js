@@ -160,13 +160,15 @@ const Channel = ({ qparams, setThemeDark, setMeta, dark, meta, width }) => {
         notifyOnNetworkStatusChange: true,
         onCompleted: data => {
             let session = data.userGetSession;
-            if (session && session.options && session.options.dark != dark)
+            if (session && session.options && session.options.dark != dark) {
+                console.log("SETTING DARK THEME", session.options.dark);
                 setThemeDark({ dark: session.options.dark });
-            /* console.log("=============>completed GET_SESSIONS", {
+            }
+            console.log("=============>completed GET_SESSION", {
                 dark,
                 data,
                 session,
-            });*/
+            });
         },
         variables: { newslineSlug },
     });
@@ -261,7 +263,7 @@ const Channel = ({ qparams, setThemeDark, setMeta, dark, meta, width }) => {
             qstate.channel.config.selectors
         );
     }
-    console.log("qparams:", qparams, "qstate:", qstate);
+    // console.log("qparams:", qparams, "qstate:", qstate);
     const updateSessionOption = update => {
         let sessionRoot = qstate.session;
         //  console.log("dark: updateSessionOption", sessionRoot);

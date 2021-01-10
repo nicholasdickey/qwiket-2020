@@ -531,7 +531,7 @@ class InnerLayoutView extends React.Component {
     render() {
         let { layout, width, density, ...other } = this.props;
         let layoutView = layout.layoutView;
-        console.log("init layoutVIew", width, density, other);
+        // console.log("init layoutVIew", width, density, other);
         if (!layoutView.w900) return <div />;
         if (!layoutView.w900) {
             layoutView.w900 = { singleWidth: "25%", spaces: 4 };
