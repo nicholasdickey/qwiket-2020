@@ -56,8 +56,8 @@ const GET_CHANNEL = gql`
 `;
 
 const GET_SESSION = gql`
-    query userGetSession($newslineSlug: String) {
-        userGetSession(newslineSlug: $newslineSlug) {
+    query sessionGetSession($newslineSlug: String) {
+        sessionGetSession(newslineSlug: $newslineSlug) {
             options {
                 loud
                 thick
@@ -77,8 +77,8 @@ const GET_SESSION = gql`
     }
 `;
 const SAVE_USER_CONFIG = gql`
-    mutation userSaveUserConfig($config: String) {
-        userSaveUserConfig(config: $config)
+    mutation sessionSaveUserConfig($config: String) {
+        sessionSaveUserConfig(config: $config)
     }
 `;
 const SAVE_SESSION_OPTIONS = gql`
@@ -92,8 +92,8 @@ const SAVE_SESSION_STATE = gql`
     }
 `;
 const USER_LOGOUT = gql`
-    mutation userLogout {
-        userLogout
+    mutation sessionLogout {
+        sessionLogout
     }
 `;
 
