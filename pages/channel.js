@@ -15,8 +15,8 @@ import u from "../lib/utils";
 import Backdrop from "@material-ui/core/Backdrop";
 import CircularProgress from "@material-ui/core/CircularProgress";
 const GET_CHANNEL = gql`
-    query storeGetChannel($ns: String) {
-        storeGetChannel(newslineSlug: $ns) {
+    query channelGetChannel($ns: String) {
+        channelGetChannel(newslineSlug: $ns) {
             channelSlug
             config {
                 layout
@@ -78,17 +78,29 @@ const GET_SESSION = gql`
 `;
 const SAVE_USER_CONFIG = gql`
     mutation sessionSaveUserConfig($config: String) {
-        sessionSaveUserConfig(config: $config)
+        sessionSaveUserConfig(config: $config) {
+            success
+            msg
+            exception
+        }
     }
 `;
 const SAVE_SESSION_OPTIONS = gql`
     mutation sessionSaveOptions($options: String) {
-        sessionSaveOptions(options: $options)
+        sessionSaveOptions(options: $options) {
+            success
+            msg
+            exception
+        }
     }
 `;
 const SAVE_SESSION_STATE = gql`
     mutation sessionSaveState($state: String) {
-        sessionSaveState(state: $state)
+        sessionSaveState(state: $state) {
+            success
+            msg
+            exception
+        }
     }
 `;
 const USER_LOGOUT = gql`
@@ -159,7 +171,7 @@ const Channel = ({ qparams, setThemeDark, setMeta, dark, meta, width }) => {
     } = useQuery(GET_SESSION, {
         notifyOnNetworkStatusChange: true,
         onCompleted: data => {
-            let session = data.userGetSession;
+            let session = data.sessionGetSession;
             if (session && session.options && session.options.dark != dark) {
                 console.log("SETTING DARK THEME", session.options.dark);
                 setThemeDark({ dark: session.options.dark });
@@ -209,11 +221,11 @@ const Channel = ({ qparams, setThemeDark, setMeta, dark, meta, width }) => {
     );
 
     const qstate = {
-        session: session?.userGetSession,
+        session: session?.sessionGetSession,
         channel: channel
-            ? channel.storeGetChannel
+            ? channel.channelGetChannel
             : { channelSlug: newslineSlug, newslineSlug },
-        user: session?.userGetSession.user,
+        user: session?.sessionGetSession.user,
     };
     /// console.log("qstate1:", qstate);
     if (qstate.session && typeof qstate.session.state === "string")

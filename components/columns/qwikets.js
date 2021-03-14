@@ -28,7 +28,7 @@ class Queue extends React.Component {
     render = () => {
         let { queueid, qid, items, border, qparams, qstate } = this.props;
 
-        // console.log("show items:", queueid);
+        console.log("43w1 show items:", queueid);
         return (
             <div>
                 {items.map(p => (
@@ -79,10 +79,10 @@ const QwiketsColumn = ({ qparams, qstate, selector, queueid }) => {
         },
         onCompleted: data => {
             if (!data) return;
-            //console.log("completed QWIKET_QUERY", queueid, page, data);
+            console.log("completed QWIKET_QUERY", queueid, page, data);
             let nqid = +(data.qwiketQuery ? data.qwiketQuery.qid : 0);
             if (nqid != qid) setQid(nqid);
-            //setItems(data.qwiketQuery.qwikets);
+            if (page == 0) setItems(data.qwiketQuery.qwikets);
 
             if (data.qwiketQuery && data.qwiketQuery.length == 6) {
                 // setLastPage(false);
@@ -199,7 +199,7 @@ const QwiketsColumn = ({ qparams, qstate, selector, queueid }) => {
     const [items, setItems] = React.useState(itemsData);
 
     //let qid = data?.qwiketQuery.qid;
-    //  console.log("DATA:", JSON.stringify(items));
+    console.log("DATA:", JSON.stringify(items));
     /*  React.useEffect(() => {
         // Update the document title using the browser API
         // document.title = `You clicked ${count} times`;

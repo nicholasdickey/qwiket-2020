@@ -17,8 +17,8 @@ import { useQuery, useLazyQuery, useMutation } from "@apollo/react-hooks";
 import { gql } from "apollo-boost";
 //--------------------------------->
 const FETCH_ALL_CHANNELS_QL = gql`
-    query storeFetchAllChannels {
-        storeFetchAllChannels {
+    query channelFetchAllChannels {
+        channelFetchAllChannels {
             slug
             displayName
             description
@@ -39,7 +39,7 @@ let NewEditionSwitch = props => {
         }
     );
     if (!channelsData) return <div>{JSON.stringify(error)}</div>;
-    let channels = channelsData.storeFetchAllChannels;
+    let channels = channelsData.channelFetchAllChannels;
     var editions = [];
     console.log("channels:", channels ? channels : "");
     channels.forEach((o, i) => {
